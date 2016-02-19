@@ -94,6 +94,9 @@ static bool set_mode(uint8_t mode)
             success = poshold_init(ignore_checks);
             break;
 #endif
+        case FOLLOW:
+            success = follow_init(ignore_checks);
+            break;
 
         default:
             success = false;
@@ -200,6 +203,9 @@ static void update_flight_mode()
             poshold_run();
             break;
 #endif
+        case FOLLOW:
+            follow_init();
+            break;
     }
 }
 
@@ -327,6 +333,9 @@ print_flight_mode(AP_HAL::BetterStream *port, uint8_t mode)
         break;
     case POSHOLD:
         port->print_P(PSTR("POSHOLD"));
+        break;
+    case FOLLOW:
+        port->print_P(PSTR("FOLLOW"));
         break;
     default:
         port->printf_P(PSTR("Mode(%u)"), (unsigned)mode);
