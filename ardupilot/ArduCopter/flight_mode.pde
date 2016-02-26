@@ -204,7 +204,7 @@ static void update_flight_mode()
             break;
 #endif
         case FOLLOW:
-            follow_init();
+            follow_run();
             break;
     }
 }
