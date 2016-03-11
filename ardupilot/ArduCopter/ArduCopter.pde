@@ -777,7 +777,7 @@ AP_Param param_loader(var_info);
 static const AP_Scheduler::Task scheduler_tasks[] PROGMEM = {
     { rc_loop,               4,     10 },
     { throttle_loop,         8,     45 },
-    { update_GPS,            8,     90 },
+    //{ update_GPS,            8,     90 },
     { update_batt_compass,  40,     72 },
     { read_aux_switches,    40,      5 },
     { arm_motors_check,     40,      1 },
@@ -845,7 +845,7 @@ static const AP_Scheduler::Task scheduler_tasks[] PROGMEM = {
 static const AP_Scheduler::Task scheduler_tasks[] PROGMEM = {
     { rc_loop,               1,     100 },
     { throttle_loop,         2,     450 },
-    { update_GPS,            2,     900 },
+    //{ update_GPS,            2,     900 },
     { update_batt_compass,  10,     720 },
     { read_aux_switches,    10,      50 },
     { arm_motors_check,     10,      10 },

@@ -71,7 +71,7 @@ const AP_Param::GroupInfo AP_GPS::var_info[] PROGMEM = {
 void AP_GPS::init(DataFlash_Class *dataflash)
 {
     _DataFlash = dataflash;
-    hal.uartB->begin(38400UL, 256, 16);
+    //hal.uartB->begin(38400UL, 256, 16);
     primary_instance = 0;
 #if GPS_MAX_INSTANCES > 1
     if (hal.uartE != NULL) {
