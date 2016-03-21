@@ -118,7 +118,11 @@ void userhook_SlowLoop()
 			i = 0;
 
 			float currentHeight2 = currentHeight/(sqrt( sq( tan( radians( abs((float)ahrs.roll_sensor) / 100 ))) + sq( tan(radians(abs((float)ahrs.pitch_sensor) / 100))) + 1));
+			float tmpHeight1 = 100/(sqrt( sq( tan( radians( abs((float)4500) / 100 ))) + sq( tan(radians(abs((float)0) / 100))) + 1));
+			float tmpHeight2 = 100/(sqrt( sq( tan( radians( abs((float)2500) / 100 ))) + sq( tan(radians(abs((float)2500) / 100))) + 1));
 			//gcs_send_text_fmt(PSTR("compass: %d\ncurrent height: %d\nforward: %d\nrotate: %d\ntarget height: %d"), compass, currentHeight, forward, rotate, targetHeight);
+			hal.console->printf("tmp height 1: %f\n", tmpHeight1);
+			hal.console->printf("tmp height 2: %f\n", tmpHeight2);
 			hal.console->printf("compass: %d\ncurrent height: %d\ncurrent height2: %f\nforward: %d\nrotate: %d\ntarget height: %d\n", compass, currentHeight, currentHeight2, forward, rotate, targetHeight);		
 
 		}else{
@@ -138,6 +142,8 @@ void userhook_SuperSlowLoop()
 
 	hal.console->printf("ahrs.roll_sensor %d\n", ahrs.roll_sensor);
 	hal.console->printf("ahrs.pitch_sensor %d\n", ahrs.pitch_sensor);
+	hal.console->printf("ahrs.yaw_sensor %d\n", ahrs.yaw_sensor);
+
 	// if(hal.uartB->available()){
 	// if(hal.uartB->available()){
 	//     hal.console->printf("available 1: %d\n", hal.uartB->available());		

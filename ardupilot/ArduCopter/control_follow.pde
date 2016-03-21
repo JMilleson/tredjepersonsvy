@@ -29,8 +29,8 @@ static void follow_run()
         return;
     }
 
-    hal.console->println("debug: follow_run");
-    hal.scheduler->delay(1000);
+    //hal.console->println("debug: follow_run");
+    //hal.scheduler->delay(1000);
 
     // convert pilot input into desired vehicle angles or rotation rates
     //   g.rc_1.control_in : pilots roll input in the range -4500 ~ 4500
