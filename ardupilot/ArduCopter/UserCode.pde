@@ -147,31 +147,10 @@ void userhook_SlowLoop()
 void userhook_SuperSlowLoop()
 {
 
-	    float distance_error;
+	float distance_error;
     float velocity_correction;
     int16_t target_roll, target_pitch;
     float target_yaw_rate;
-
-    // if not armed or throttle at zero, set throttle to zero and exit immediately
-     get_pilot_desired_lean_angles(g.rc_1.control_in, g.rc_2.control_in, target_roll, target_pitch);
-
-    // get pilot's desired yaw rate
-    target_yaw_rate = get_pilot_desired_yaw_rate(g.rc_4.control_in);
-
-    //hal.console->println("debug: follow_run");
-    //hal.scheduler->delay(1000);
-
-    // convert pilot input into desired vehicle angles or rotation rates
-    //   g.rc_1.control_in : pilots roll input in the range -4500 ~ 4500
-    //   g.rc_2.control_in : pilot pitch input in the range -4500 ~ 4500
-    //   g.rc_3.control_in : pilot's throttle input in the range 0 ~ 1000
-    //   g.rc_4.control_in : pilot's yaw input in the range -4500 ~ 4500
-
-    // call one of attitude controller's attitude control functions like
-    //   attitude_control.angle_ef_roll_pitch_rate_yaw(roll angle, pitch angle, yaw rate);
-
-    // call position controller's z-axis controller or simply pass through throttle
-    //   attitude_control.set_throttle_out(desired throttle, true);
     
     distance_error = follow_sonar_height - follow_target_height;
     velocity_correction = distance_error * 0.8;

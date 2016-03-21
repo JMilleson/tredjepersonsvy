@@ -72,10 +72,6 @@ AC_PosControl::AC_PosControl(const AP_AHRS& ahrs, const AP_InertialNav& inav,
     _flags.reset_accel_to_throttle = true;
 }
 
-void set_desired_velocity_z(float climb_rate_cms){
-    _vel_desired.z = climb_rate_cms;
-}
-
 ///
 /// z-axis position controller
 ///
@@ -93,6 +89,13 @@ void AC_PosControl::set_dt(float delta_sec)
     _vel_error_filter.set_cutoff_frequency(_dt,POSCONTROL_VEL_ERROR_CUTOFF_FREQ);
     _accel_error_filter.set_cutoff_frequency(_dt,POSCONTROL_ACCEL_ERROR_CUTOFF_FREQ);
 }
+
+
+void AC_PosControl::set_desired_velocity_z(float climb_rate_cms)
+{
+    _vel_desired.z = climb_rate_cms;
+}
+
 
 /// set_speed_z - sets maximum climb and descent rates
 /// To-Do: call this in the main code as part of flight mode initialisation
