@@ -67,6 +67,6 @@ static void follow_run()
     follow_target_climb_rate = follow_target_climb_rate + velocity_correction;
 
     attitude_control.angle_ef_roll_pitch_rate_ef_yaw_smooth(target_roll, target_pitch, target_yaw_rate, get_smoothing_gain());
-    pos_control.set_alt_target_from_climb_rate(follow_target_climb_rate, G_Dt);
+    _vel_desired.z = follow_target_climb_rate;
     pos_control.update_z_controller();
 }
