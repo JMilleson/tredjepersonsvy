@@ -72,6 +72,10 @@ AC_PosControl::AC_PosControl(const AP_AHRS& ahrs, const AP_InertialNav& inav,
     _flags.reset_accel_to_throttle = true;
 }
 
+void set_desired_velocity_z(float climb_rate_cms){
+    _vel_desired.z = climb_rate_cms;
+}
+
 ///
 /// z-axis position controller
 ///

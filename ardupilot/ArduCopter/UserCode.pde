@@ -87,6 +87,7 @@ void userhook_SlowLoop()
 			compass += values[2] - '0';
 			compass *= 10;
 			compass += values[3] - '0';
+			compass -= 200;
 			int16_t currentHeight = values[4] - '0';
 			currentHeight *= 10;
 			currentHeight += values[5] - '0';
@@ -117,12 +118,19 @@ void userhook_SlowLoop()
 			targetHeight += values[19] - '0';
 			i = 0;
 
+			if(follow_oculus_yaw_offset == -1){
+				follow_oculus_yaw_offset = compass - ahrs.yaw_sensor;
+			}
+
 			float currentHeight2 = currentHeight/(sqrt( sq( tan( radians( abs((float)ahrs.roll_sensor) / 100 ))) + sq( tan(radians(abs((float)ahrs.pitch_sensor) / 100))) + 1));
-			float tmpHeight1 = 100/(sqrt( sq( tan( radians( abs((float)4500) / 100 ))) + sq( tan(radians(abs((float)0) / 100))) + 1));
-			float tmpHeight2 = 100/(sqrt( sq( tan( radians( abs((float)2500) / 100 ))) + sq( tan(radians(abs((float)2500) / 100))) + 1));
+			follow_sonar_height = currentHeight2;
+			follow_target_height = targetHeight;
+			follow_oculus_yaw = compass + follow_oculus_yaw_offset;
+			//float tmpHeight1 = 100/(sqrt( sq( tan( radians( abs((float)4500) / 100 ))) + sq( tan(radians(abs((float)0) / 100))) + 1));
+			//float tmpHeight2 = 100/(sqrt( sq( tan( radians( abs((float)2500) / 100 ))) + sq( tan(radians(abs((float)2500) / 100))) + 1));
 			//gcs_send_text_fmt(PSTR("compass: %d\ncurrent height: %d\nforward: %d\nrotate: %d\ntarget height: %d"), compass, currentHeight, forward, rotate, targetHeight);
-			hal.console->printf("tmp height 1: %f\n", tmpHeight1);
-			hal.console->printf("tmp height 2: %f\n", tmpHeight2);
+			//hal.console->printf("tmp height 1: %f\n", tmpHeight1);
+			//hal.console->printf("tmp height 2: %f\n", tmpHeight2);
 			hal.console->printf("compass: %d\ncurrent height: %d\ncurrent height2: %f\nforward: %d\nrotate: %d\ntarget height: %d\n", compass, currentHeight, currentHeight2, forward, rotate, targetHeight);		
 
 		}else{
@@ -139,10 +147,44 @@ void userhook_SlowLoop()
 void userhook_SuperSlowLoop()
 {
 
+	    float distance_error;
+    float velocity_correction;
+    int16_t target_roll, target_pitch;
+    float target_yaw_rate;
 
-	hal.console->printf("ahrs.roll_sensor %d\n", ahrs.roll_sensor);
-	hal.console->printf("ahrs.pitch_sensor %d\n", ahrs.pitch_sensor);
-	hal.console->printf("ahrs.yaw_sensor %d\n", ahrs.yaw_sensor);
+    // if not armed or throttle at zero, set throttle to zero and exit immediately
+     get_pilot_desired_lean_angles(g.rc_1.control_in, g.rc_2.control_in, target_roll, target_pitch);
+
+    // get pilot's desired yaw rate
+    target_yaw_rate = get_pilot_desired_yaw_rate(g.rc_4.control_in);
+
+    //hal.console->println("debug: follow_run");
+    //hal.scheduler->delay(1000);
+
+    // convert pilot input into desired vehicle angles or rotation rates
+    //   g.rc_1.control_in : pilots roll input in the range -4500 ~ 4500
+    //   g.rc_2.control_in : pilot pitch input in the range -4500 ~ 4500
+    //   g.rc_3.control_in : pilot's throttle input in the range 0 ~ 1000
+    //   g.rc_4.control_in : pilot's yaw input in the range -4500 ~ 4500
+
+    // call one of attitude controller's attitude control functions like
+    //   attitude_control.angle_ef_roll_pitch_rate_yaw(roll angle, pitch angle, yaw rate);
+
+    // call position controller's z-axis controller or simply pass through throttle
+    //   attitude_control.set_throttle_out(desired throttle, true);
+    
+    distance_error = follow_sonar_height - follow_target_height;
+    velocity_correction = distance_error * 0.8;
+    velocity_correction = constrain_float(velocity_correction, -THR_SURFACE_TRACKING_VELZ_MAX, THR_SURFACE_TRACKING_VELZ_MAX);
+    follow_target_climb_rate = follow_target_climb_rate + velocity_correction;
+
+
+	hal.console->printf("distance_error %d\n", distance_error);
+	hal.console->printf("follow_target_climb_rate %d\n", follow_target_climb_rate);
+	hal.console->printf("follow_oculus_yaw %d\n", follow_oculus_yaw);
+	//hal.console->printf("ahrs.roll_sensor %d\n", ahrs.roll_sensor);
+	//hal.console->printf("ahrs.pitch_sensor %d\n", ahrs.pitch_sensor);
+	//hal.console->printf("ahrs.yaw_sensor %d\n", ahrs.yaw_sensor);
 
 	// if(hal.uartB->available()){
 	// if(hal.uartB->available()){

@@ -6,6 +6,12 @@
 // variables
 #ifdef USERHOOK_VARIABLES
 
+int16_t follow_target_climb_rate;
+int16_t follow_target_height = 200;
+int16_t follow_sonar_height = 200;
+int16_t follow_oculus_yaw = 0;
+int16_t follow_oculus_yaw_offset = -1;
+
 #if WII_CAMERA == 1
 WiiCamera           ircam;
 int                 WiiRange=0;

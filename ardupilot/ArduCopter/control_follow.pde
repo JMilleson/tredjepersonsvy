@@ -4,11 +4,6 @@
  * control_follow.cpp - init and run calls for follow flight mode
  */
 
-int16_t follow_target_climb_rate;
-int16_t follow_target_height = 200;
-int16_t follow_sonar_height = 200;
-int16_t follow_oculus_yaw = 0;
-int16_t follow_oculus_yaw_offset = -1;
 
 // follow_init - initialise follow mode
 static bool follow_init(bool ignore_checks)
@@ -67,6 +62,6 @@ static void follow_run()
     follow_target_climb_rate = follow_target_climb_rate + velocity_correction;
 
     attitude_control.angle_ef_roll_pitch_rate_ef_yaw_smooth(target_roll, target_pitch, target_yaw_rate, get_smoothing_gain());
-    _vel_desired.z = follow_target_climb_rate;
+    set_desired_velocity_z(follow_target_climb_rate);
     pos_control.update_z_controller();
 }
