@@ -4,6 +4,12 @@
  * control_follow.cpp - init and run calls for follow flight mode
  */
 
+int16_t follow_target_climb_rate;
+int16_t follow_target_height = 200;
+int16_t follow_sonar_height = 200;
+int16_t follow_oculus_yaw = 0;
+int16_t follow_oculus_yaw_offset = -1;
+
 // follow_init - initialise follow mode
 static bool follow_init(bool ignore_checks)
 {
@@ -12,6 +18,7 @@ static bool follow_init(bool ignore_checks)
 
     // return true initialisation is successful, false if it fails
     // if false is returned here the vehicle will remain in the previous flight mode
+    follow_target_climb_rate = get_pilot_desired_climb_rate(g.rc_3.control_in);
 
     hal.console->println("debug: init follow_run");
     return true;
@@ -21,6 +28,11 @@ static bool follow_init(bool ignore_checks)
 // will be called at 100hz or more
 static void follow_run()
 {
+    float distance_error;
+    float velocity_correction;
+    int16_t target_roll, target_pitch;
+    float target_yaw_rate;
+
     // if not armed or throttle at zero, set throttle to zero and exit immediately
     if(!motors.armed() || g.rc_3.control_in <= 0) {
         attitude_control.relax_bf_rate_controller();
@@ -28,6 +40,11 @@ static void follow_run()
         attitude_control.set_throttle_out(0, false);
         return;
     }
+
+     get_pilot_desired_lean_angles(g.rc_1.control_in, g.rc_2.control_in, target_roll, target_pitch);
+
+    // get pilot's desired yaw rate
+    target_yaw_rate = get_pilot_desired_yaw_rate(g.rc_4.control_in);
 
     //hal.console->println("debug: follow_run");
     //hal.scheduler->delay(1000);
@@ -43,4 +60,13 @@ static void follow_run()
 
     // call position controller's z-axis controller or simply pass through throttle
     //   attitude_control.set_throttle_out(desired throttle, true);
+    
+    distance_error = follow_sonar_height - follow_target_height;
+    velocity_correction = distance_error * 0.8;
+    velocity_correction = constrain_float(velocity_correction, -THR_SURFACE_TRACKING_VELZ_MAX, THR_SURFACE_TRACKING_VELZ_MAX);
+    follow_target_climb_rate = follow_target_climb_rate + velocity_correction;
+
+    attitude_control.angle_ef_roll_pitch_rate_ef_yaw_smooth(target_roll, target_pitch, target_yaw_rate, get_smoothing_gain());
+    pos_control.set_alt_target_from_climb_rate(follow_target_climb_rate, G_Dt);
+    pos_control.update_z_controller();
 }
