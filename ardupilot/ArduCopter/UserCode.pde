@@ -10,12 +10,12 @@ void userhook_init()
     // put your initialisation code here
     // this will be called once at start-up
 
-	// g.flight_mode1 = STABILIZE;
-	// g.flight_mode2 = FOLLOW;
-	// g.flight_mode3 = LAND;
-	// g.flight_mode4 = OF_LOITER;
-	// g.flight_mode5 = OF_LOITER;
-	// g.flight_mode6 = LAND;
+	g.flight_mode1 = STABILIZE;
+	g.flight_mode2 = FOLLOW;
+	g.flight_mode3 = LAND;
+	g.flight_mode4 = OF_LOITER;
+	g.flight_mode5 = OF_LOITER;
+	g.flight_mode6 = LAND;
 
 	gps.lock_port(0, 1);
 	hal.uartB->begin(57600, 256, 16);
@@ -65,7 +65,7 @@ void userhook_50Hz()
 		values[21] = '\0';
 		//gcs_send_text_fmt(PSTR("values: %s"), values);
 		//gcs_send_text_fmt(PSTR("value 1: %d\n value 4: %d"), values[1], values[4]);
-	    hal.console->printf("values: %s\n", values);		
+	    //hal.console->printf("values: %s\n", values);		
 		if(values[0] == STX && values[20] == ETX){
 			int16_t compass = values[1] - '0';
 			compass *= 10;
@@ -235,6 +235,9 @@ void userhook_SuperSlowLoop()
 
 	hal.console->printf("follow_target_climb_rate %d\n", follow_target_climb_rate);
 	hal.console->printf("follow_sonar_height %d\n", follow_sonar_height);
+	hal.console->printf("throttle value %d\n", g.rc_3.control_in);
+
+
 	//hal.console->printf("ahrs.pitch_sensor %d\n", ahrs.pitch_sensor);
 	//hal.console->printf("ahrs.yaw_sensor %d\n", ahrs.yaw_sensor);
 

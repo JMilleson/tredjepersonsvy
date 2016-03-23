@@ -13,6 +13,14 @@ static bool follow_init(bool ignore_checks)
 
     // return true initialisation is successful, false if it fails
     // if false is returned here the vehicle will remain in the previous flight mode
+
+    pos_control.set_speed_z(-g.pilot_velocity_z_max, g.pilot_velocity_z_max);
+    pos_control.set_accel_z(g.pilot_accel_z);
+
+    // initialise altitude target to stopping point
+    pos_control.set_target_to_stopping_point_z();
+
+    
     follow_target_climb_rate = get_pilot_desired_climb_rate(g.rc_3.control_in);
 
     hal.console->println("debug: init follow_run");
@@ -40,7 +48,7 @@ static void follow_run()
 
     // get pilot's desired yaw rate
     target_yaw_rate = get_pilot_desired_yaw_rate(g.rc_4.control_in);
-    follow_target_climb_rate = get_pilot_desired_climb_rate(g.rc_3.control_in);
+    //follow_target_climb_rate = get_pilot_desired_climb_rate(g.rc_3.control_in);
 
     //hal.console->println("debug: follow_run");
     //hal.scheduler->delay(1000);
@@ -57,7 +65,7 @@ static void follow_run()
     // call position controller's z-axis controller or simply pass through throttle
     //   attitude_control.set_throttle_out(desired throttle, true);
     
-    distance_error = follow_sonar_height - follow_target_height;
+    distance_error =  follow_target_height - follow_sonar_height;
     velocity_correction = distance_error * 0.8;
     velocity_correction = constrain_float(velocity_correction, -THR_SURFACE_TRACKING_VELZ_MAX, THR_SURFACE_TRACKING_VELZ_MAX);
     follow_target_climb_rate = follow_target_climb_rate + velocity_correction;
