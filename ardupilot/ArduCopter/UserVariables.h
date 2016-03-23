@@ -6,7 +6,7 @@
 // variables
 #ifdef USERHOOK_VARIABLES
 
-int16_t follow_target_climb_rate;
+int16_t follow_target_climb_rate = 0;
 int16_t follow_target_height = 200;
 int16_t follow_sonar_height = 200;
 int16_t follow_oculus_yaw = 0;

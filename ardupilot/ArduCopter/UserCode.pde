@@ -116,10 +116,10 @@ void userhook_50Hz()
 			//gcs_send_text_fmt(PSTR("compass: %d\ncurrent height: %d\nforward: %d\nrotate: %d\ntarget height: %d"), compass, currentHeight, forward, rotate, targetHeight);
 			//hal.console->printf("tmp height 1: %f\n", tmpHeight1);
 			//hal.console->printf("tmp height 2: %f\n", tmpHeight2);
-			hal.console->printf("compass: %d\ncurrent height: %d\ncurrent height2: %f\nforward: %d\nrotate: %d\ntarget height: %d\n", compass, currentHeight, currentHeight2, forward, rotate, targetHeight);		
+			//hal.console->printf("compass: %d\ncurrent height: %d\ncurrent height2: %f\nforward: %d\nrotate: %d\ntarget height: %d\n", compass, currentHeight, currentHeight2, forward, rotate, targetHeight);		
 
 		}else{
-			hal.console->printf("wrong start or end value");
+			//hal.console->printf("wrong start or end value");
 			//gcs_send_text_fmt(PSTR("wrong start or end value"));
 		}
 	}
