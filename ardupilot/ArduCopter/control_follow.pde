@@ -40,6 +40,7 @@ static void follow_run()
 
     // get pilot's desired yaw rate
     target_yaw_rate = get_pilot_desired_yaw_rate(g.rc_4.control_in);
+    follow_target_climb_rate = get_pilot_desired_climb_rate(g.rc_3.control_in);
 
     //hal.console->println("debug: follow_run");
     //hal.scheduler->delay(1000);
