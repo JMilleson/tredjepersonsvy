@@ -3,7 +3,7 @@
 /*
  * control_follow.cpp - init and run calls for follow flight mode
  */
-
+int last_altitude = 0;
 
 // follow_init - initialise follow mode
 static bool follow_init(bool ignore_checks)
@@ -18,7 +18,7 @@ static bool follow_init(bool ignore_checks)
     //g.rc_3.control_in
     //values between 0 and 1000
 
-    follow_target_climb_rate = get_pilot_desired_climb_rate(g.rc_3.control_in);
+    follow_throttle = g.rc_3.control_in;
 
     hal.console->println("debug: init follow_run");
     return true;
@@ -61,13 +61,14 @@ static void follow_run()
 
     // call position controller's z-axis controller or simply pass through throttle
     //   attitude_control.set_throttle_out(desired throttle, true);
-    
-    distance_error =  follow_target_height - follow_sonar_height;
-    velocity_correction = distance_error * 0.8;
-    velocity_correction = constrain_float(velocity_correction, -THR_SURFACE_TRACKING_VELZ_MAX, THR_SURFACE_TRACKING_VELZ_MAX);
-    follow_target_climb_rate = follow_target_climb_rate + velocity_correction;
+    if(last_altitude != follow_sonar_height){
+        distance_error =  follow_target_height - follow_sonar_height;
+        follow_throttle = (int16_t) (follow_throttle + distance_error/3);
+        follow_throttle = constrain_int16(follow_throttle,0,1000);
+        last_altitude = follow_sonar_height;
+    }
 
     attitude_control.angle_ef_roll_pitch_rate_ef_yaw_smooth(target_roll, target_pitch, target_yaw_rate, get_smoothing_gain());
-    pos_control.set_desired_velocity_z(follow_target_climb_rate);
-    pos_control.update_z_controller();
+    attitude_control.set_throttle_out(follow_throttle, true);
+
 }
