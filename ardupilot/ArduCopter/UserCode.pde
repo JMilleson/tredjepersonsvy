@@ -236,6 +236,7 @@ void userhook_SuperSlowLoop()
 	hal.console->printf("follow_target_climb_rate %d\n", follow_target_climb_rate);
 	hal.console->printf("follow_sonar_height %d\n", follow_sonar_height);
 	hal.console->printf("throttle value %d\n", g.rc_3.control_in);
+	hal.console->printf("yaw value %d\n", g.rc_4.control_in);
 
 
 	//hal.console->printf("ahrs.pitch_sensor %d\n", ahrs.pitch_sensor);
