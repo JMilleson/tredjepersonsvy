@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "tcpclient.h"
+#include "occulussensorcontroller.h"
 
 namespace Ui {
 class MainWindow;
@@ -17,11 +18,16 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_pushButton_clicked();
+    void on_pushConnect_clicked();
+
+    void on_pushInitOculus_clicked();
+
+    void on_send_clicked();
 
 private:
     Ui::MainWindow *ui;
     TcpClient client;
+    OcculusSensorController oculus;
 };
 
 #endif // MAINWINDOW_H

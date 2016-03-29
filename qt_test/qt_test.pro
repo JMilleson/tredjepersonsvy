@@ -16,10 +16,21 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     tcpclient.cpp \
-    occulussensorcontroller.cpp
+    occulussensorcontroller.cpp \
+    occulussensocontrollersimulator.cpp
 
 HEADERS  += mainwindow.h \
     tcpclient.h \
-    occulussensorcontroller.h
+    occulussensorcontroller.h \
+    occulussensocontrollersimulator.h
 
 FORMS    += mainwindow.ui
+
+LIBS += -L$$PWD/'../../../../../Program Files/OculusSDK/LibOVR/Lib/Windows/x64/Release/VS2015/' -lLibOVR
+
+INCLUDEPATH += $$PWD/'../../../../../Program Files/OculusSDK/LibOVR/Lib/Windows/x64/Release/VS2015'
+DEPENDPATH += $$PWD/'../../../../../Program Files/OculusSDK/LibOVR/Lib/Windows/x64/Release/VS2015'
+
+INCLUDEPATH += $$PWD/'../../../../../Program Files/OculusSDK/LibOVR/Include'
+INCLUDEPATH += $$PWD/'../../../../../Program Files/OculusSDK/LibOVR/Include/extras'
+
