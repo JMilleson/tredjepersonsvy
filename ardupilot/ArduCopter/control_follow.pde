@@ -4,6 +4,10 @@
  * control_follow.cpp - init and run calls for follow flight mode
  */
 int last_altitude = 0;
+int kp = 1, ki = 1, kd = 1;
+int16_t integral = 0, derivative = 0;
+int16_t previousError = 0;
+uint32_t lastTime = 0;
 
 // follow_init - initialise follow mode
 static bool follow_init(bool ignore_checks)
@@ -19,6 +23,8 @@ static bool follow_init(bool ignore_checks)
     //values between 0 and 1000
 
     follow_throttle = g.rc_3.control_in;
+
+    lastTime = millis();
 
     hal.console->println("debug: init follow_run");
     return true;
@@ -62,10 +68,14 @@ static void follow_run()
     // call position controller's z-axis controller or simply pass through throttle
     //   attitude_control.set_throttle_out(desired throttle, true);
     if(last_altitude != follow_sonar_height){
+        uint16_t dt = millis()- lastTime;
         distance_error =  follow_target_height - follow_sonar_height;
-        follow_throttle = (int16_t) (follow_throttle + distance_error/3);
-        follow_throttle = constrain_int16(follow_throttle,0,1000);
+        integral += distance_error * dt;
+        derivative = (distance_error - previousError) / dt;
+        follow_throttle = constrain_int16(kp * distance_error + ki * integral + kd * derivative, 0, 1000);
+        previousError = distance_error;
         last_altitude = follow_sonar_height;
+        lastTime = dt;
     }
 
     attitude_control.angle_ef_roll_pitch_rate_ef_yaw_smooth(target_roll, target_pitch, target_yaw_rate, get_smoothing_gain());

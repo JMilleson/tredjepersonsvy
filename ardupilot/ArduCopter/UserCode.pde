@@ -233,7 +233,7 @@ void userhook_SlowLoop()
 void userhook_SuperSlowLoop()
 {
 
-	hal.console->printf("follow_thottle %d\n", follow_thottle);
+	hal.console->printf("follow_thottle %d\n", follow_throttle);
 	hal.console->printf("follow_sonar_height %d\n", follow_sonar_height);
 	hal.console->printf("follow_yaw %d\n", follow_yaw);
 
