@@ -12,6 +12,8 @@ int16_t follow_sonar_height = 200;
 int16_t follow_oculus_yaw = 0;
 int16_t follow_oculus_yaw_offset = -1;
 int16_t follow_yaw = 0;
+int altitude_updated = 0;
+
 
 #if WII_CAMERA == 1
 WiiCamera           ircam;

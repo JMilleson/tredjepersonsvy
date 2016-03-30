@@ -6,20 +6,22 @@
  * There are two parts to RTL, the high level decision making which controls which state we are in
  * and the lower implementation of the waypoint or landing controllers within those states
  */
-int last_altitude = 0;
+/*int last_altitude = 0;
 int kp = 1, ki = 1, kd = 1;
 int16_t integral = 0, derivative = 0;
 int16_t previousError = 0;
 uint32_t lastTime = 0;
+*/
 // rtl_init - initialise rtl controller
 static bool rtl_init(bool ignore_checks)
 {
-    follow_throttle = g.rc_3.control_in;
+/*    follow_throttle = g.rc_3.control_in;
 
     lastTime = millis();
 
     hal.console->println("debug: init follow_run");
     return true;
+    */
     /*
     if (GPS_ok() || ignore_checks) {
         rtl_climb_start();
@@ -28,12 +30,15 @@ static bool rtl_init(bool ignore_checks)
         return false;
     }
     */
+
+    return false;
 }
 
 // rtl_run - runs the return-to-launch controller
 // should be called at 100hz or more
 static void rtl_run()
 {
+    /*
     float distance_error;
     float velocity_correction;
     int16_t target_roll, target_pitch;
@@ -80,7 +85,7 @@ static void rtl_run()
 
     attitude_control.angle_ef_roll_pitch_rate_ef_yaw_smooth(target_roll, target_pitch, target_yaw_rate, get_smoothing_gain());
     attitude_control.set_throttle_out(follow_throttle, true);
-
+*/
     /*
     // check if we need to move to next state
     if (rtl_state_complete) {

@@ -3,8 +3,7 @@
 /*
  * control_follow.cpp - init and run calls for follow flight mode
  */
-int last_altitude = 0;
-int kp = 1, ki = 1, kd = 1;
+float kp = 0.2f, ki = 0, kd = 0;
 int16_t integral = 0, derivative = 0;
 int16_t previousError = 0;
 uint32_t lastTime = 0;
@@ -40,7 +39,7 @@ static void follow_run()
     float target_yaw_rate;
 
     // if not armed or throttle at zero, set throttle to zero and exit immediately
-    if(!motors.armed() || g.rc_3.control_in <= 0) {
+    if(!motors.armed()) {
         attitude_control.relax_bf_rate_controller();
         attitude_control.set_yaw_target_to_current_heading();
         attitude_control.set_throttle_out(0, false);
@@ -67,15 +66,15 @@ static void follow_run()
 
     // call position controller's z-axis controller or simply pass through throttle
     //   attitude_control.set_throttle_out(desired throttle, true);
-    if(last_altitude != follow_sonar_height){
+    if(altitude_updated){
+        altitude_updated = 0;
         uint16_t dt = millis()- lastTime;
         distance_error =  follow_target_height - follow_sonar_height;
         integral += distance_error * dt;
         derivative = (distance_error - previousError) / dt;
-        follow_throttle = constrain_int16(kp * distance_error + ki * integral + kd * derivative, 0, 1000);
+        follow_throttle = (int16_t)constrain_float(600 + kp * distance_error + ki * integral + kd * derivative, 0, 1000);
         previousError = distance_error;
-        last_altitude = follow_sonar_height;
-        lastTime = dt;
+        lastTime = millis();
     }
 
     attitude_control.angle_ef_roll_pitch_rate_ef_yaw_smooth(target_roll, target_pitch, target_yaw_rate, get_smoothing_gain());
