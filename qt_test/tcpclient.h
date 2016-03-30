@@ -13,9 +13,14 @@ public:
     int doConnect(QString ip, quint16 port, int timeOutMS);
     int getDefaultTimeoutMS () {return defaultTimeoutMS;};
     int send(QString s);
+
 signals:
 
 public slots:
+    void connected();
+    void disconnected();
+    void bytesWritten(qint64 bytes);
+    void readyRead();
 
 private:
     QTcpSocket *socket;

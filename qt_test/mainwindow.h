@@ -22,6 +22,10 @@ private slots:
 
     void on_pushInitOculus_clicked();
 
+    void on_pushGetSensorData_clicked();
+
+    void on_pushSendSensorData_clicked();
+
     void on_send_clicked();
 
 private:

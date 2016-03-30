@@ -75,7 +75,7 @@
       <x>0</x>
       <y>80</y>
       <width>501</width>
-      <height>10</height>
+      <height>16</height>
      </rect>
     </property>
     <property name="baseSize">
@@ -124,6 +124,61 @@
     </property>
     <property name="flat">
      <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>140</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Sensor values:</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="sensorOutput">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>140</y>
+      <width>331</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushGetSensorData">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>100</y>
+      <width>231</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Get sensor data</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushSendSensorData">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>230</y>
+      <width>151</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Send sensor data</string>
     </property>
    </widget>
   </widget>

@@ -10,7 +10,13 @@ int TcpClient::doConnect(QString ip, quint16 port){
 }
 
 int TcpClient::doConnect(QString ip, quint16 port, int timeOutMs){
-    this->socket = new QTcpSocket(this);
+    socket = new QTcpSocket(this);
+
+    connect(socket, SIGNAL(connected()),this, SLOT(connected()));
+    connect(socket, SIGNAL(disconnected()),this, SLOT(disconnected()));
+    connect(socket, SIGNAL(bytesWritten(qint64)),this, SLOT(bytesWritten(qint64)));
+    connect(socket, SIGNAL(readyRead()),this, SLOT(readyRead()));
+
     socket->connectToHost(ip,port);
 
     if(socket->waitForConnected(timeOutMs))
@@ -27,8 +33,7 @@ int TcpClient::doConnect(QString ip, quint16 port, int timeOutMs){
 
 int TcpClient::send(QString s){
     if(socket->state() == socket->ConnectedState){
-        if(socket->write(s.toStdString().c_str()) &&  socket->waitForBytesWritten(1000)){
-            qDebug() << "Wrote: " +s +" to socket";
+        if(socket->write(s.toStdString().c_str()) &&  socket->waitForBytesWritten(10000)){
             return 0;
         } else {
             return -2;
@@ -38,4 +43,30 @@ int TcpClient::send(QString s){
         qDebug() << "Not connected!";
         return -1;
     }
+}
+
+void TcpClient::connected()
+{
+    qDebug() << "connected...";
+
+    // Hey server, tell me about you.
+    socket->write("hej martin");
+}
+
+void TcpClient::disconnected()
+{
+    qDebug() << "disconnected...";
+}
+
+void TcpClient::bytesWritten(qint64 bytes)
+{
+    qDebug() << bytes << " bytes written...";
+}
+
+void TcpClient::readyRead()
+{
+    qDebug() << "reading...";
+
+    // read the data from the socket
+    qDebug() << socket->readAll();
 }

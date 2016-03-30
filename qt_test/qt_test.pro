@@ -22,7 +22,8 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     tcpclient.h \
     occulussensorcontroller.h \
-    occulussensocontrollersimulator.h
+    occulussensocontrollersimulator.h \
+    json.hpp
 
 FORMS    += mainwindow.ui
 

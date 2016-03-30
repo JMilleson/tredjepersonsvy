@@ -14,6 +14,20 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::on_pushGetSensorData_clicked(){
+    qDebug() << "Attempting to get sensor data...";
+    oculus.updateTracking();
+    json data =oculus.getSensorDataAsJSON();
+    ui->sensorOutput->setText(QString::fromStdString(data.dump()));
+}
+
+void MainWindow::on_pushSendSensorData_clicked()
+{
+    qDebug() << "Sending sensor data";
+    client.send(QString::fromStdString(
+        oculus.getSensorDataAsJSON().dump()));
+}
+
 void MainWindow::on_pushConnect_clicked()
 {
     qDebug() << "Attempting to connect to" << ui->ip->text();
@@ -34,7 +48,7 @@ void MainWindow::on_pushConnect_clicked()
 
 void MainWindow::on_pushInitOculus_clicked()
 {
-    qDebug() << "Attempting to init occulus" << ui->ip->text();
+    qDebug() << "Attempting to init occulus";
     if(oculus.init()>=0)
     {
         ui->pushInitOculus->setStyleSheet("background-color: green");
@@ -48,5 +62,6 @@ void MainWindow::on_pushInitOculus_clicked()
 
 void MainWindow::on_send_clicked()
 {
+    qDebug() << "Sending message";
     client.send(ui->sendMessage->text());
 }
