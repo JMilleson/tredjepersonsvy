@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Martin
-Date                   :=03/29/16
+Date                   :=03/30/16
 CodeLitePath           :="/home/martin/.codelite"
 LinkerName             :=/usr/bin/g++
 SharedObjectLinkerName :=/usr/bin/g++ -shared -fPIC
@@ -39,8 +39,8 @@ LinkOptions            :=
 IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)./wiringPiLibrary/wiringPi/ 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := $(LibrarySwitch)wiringPi $(LibrarySwitch)pthread 
-ArLibs                 :=  "wiringPi" "pthread" 
+Libs                   := $(LibrarySwitch)pthread 
+ArLibs                 :=  "pthread" 
 LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)./wiringPiLibrary/wiringPi/ 
 
 ##
@@ -60,7 +60,7 @@ AS       := /usr/bin/as
 ## User defined environment variables
 ##
 CodeLiteDir:=/usr/share/codelite
-Objects0=$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IntermediateDirectory)/ServoController.cpp$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IntermediateDirectory)/piServer.cpp$(ObjectSuffix) 
 
 
 
@@ -99,13 +99,13 @@ $(IntermediateDirectory)/main.cpp$(DependSuffix): main.cpp
 $(IntermediateDirectory)/main.cpp$(PreprocessSuffix): main.cpp
 	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/main.cpp$(PreprocessSuffix) "main.cpp"
 
-$(IntermediateDirectory)/ServoController.cpp$(ObjectSuffix): ServoController.cpp $(IntermediateDirectory)/ServoController.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/martin/Dokument/Tredjepersonsvy/tredjepersonsvy/piApp/ServoController.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/ServoController.cpp$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/ServoController.cpp$(DependSuffix): ServoController.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/ServoController.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/ServoController.cpp$(DependSuffix) -MM "ServoController.cpp"
+$(IntermediateDirectory)/piServer.cpp$(ObjectSuffix): piServer.cpp $(IntermediateDirectory)/piServer.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/martin/Dokument/Tredjepersonsvy/tredjepersonsvy/piApp/piServer.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/piServer.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/piServer.cpp$(DependSuffix): piServer.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/piServer.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/piServer.cpp$(DependSuffix) -MM "piServer.cpp"
 
-$(IntermediateDirectory)/ServoController.cpp$(PreprocessSuffix): ServoController.cpp
-	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/ServoController.cpp$(PreprocessSuffix) "ServoController.cpp"
+$(IntermediateDirectory)/piServer.cpp$(PreprocessSuffix): piServer.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/piServer.cpp$(PreprocessSuffix) "piServer.cpp"
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)

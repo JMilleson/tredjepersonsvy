@@ -20,7 +20,8 @@ class piServer
 public:
     piServer();
     ~piServer();
-    int connfd;
+    int connfd = 0;
+    int ConnectedIp = 0;
     
 };
 

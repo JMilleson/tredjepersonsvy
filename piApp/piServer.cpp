@@ -7,8 +7,6 @@ piServer::piServer()
     connfd = 0;
     struct sockaddr_in serv_addr; 
 
-    time_t ticks; 
-
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
     memset(&serv_addr, '0', sizeof(serv_addr));
 
@@ -20,21 +18,16 @@ piServer::piServer()
 
     listen(listenfd, 10);
     
-
+    printf("Waiting for connection\n;");
     sockaddr_in client;
     client.sin_family = AF_INET;
     socklen_t c_len = sizeof(client);
-
+    
     connfd = accept(listenfd, (sockaddr*)&client, &c_len);
     
-    client.sin_addr.s_addr;
+    printf("Connection from: %d\n",client.sin_addr.s_addr);
     
     
-    
-   // ticks = time(NULL);
-    //snprintf(sendBuff, sizeof(sendBuff), "%.24s\r\n", ctime(&ticks));
-    //write(connfd, sendBuff, strlen(sendBuff)); 
-
 }
 
 piServer::~piServer()

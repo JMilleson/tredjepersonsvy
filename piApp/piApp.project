@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Project Name="piApp" InternalType="Console">
   <Plugins>
+    <Plugin Name="qmake">
+      <![CDATA[00010001N0005Debug000000000000]]>
+    </Plugin>
     <Plugin Name="CMakePlugin">
       <![CDATA[[{
   "name": "Debug",
@@ -13,16 +16,15 @@
   "parentProject": ""
  }]]]>
     </Plugin>
-    <Plugin Name="qmake">
-      <![CDATA[00010001N0005Debug000000000000]]>
-    </Plugin>
   </Plugins>
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
     <File Name="main.cpp"/>
-    <File Name="ServoController.h"/>
-    <File Name="ServoController.cpp"/>
+    <File Name="ServoController.h" ExcludeProjConfig="Debug"/>
+    <File Name="ServoController.cpp" ExcludeProjConfig="Debug"/>
+    <File Name="piServer.h"/>
+    <File Name="piServer.cpp"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>
@@ -41,7 +43,6 @@
       </Compiler>
       <Linker Options="" Required="yes">
         <LibraryPath Value="./wiringPiLibrary/wiringPi/"/>
-        <Library Value="wiringPi"/>
         <Library Value="pthread"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>
