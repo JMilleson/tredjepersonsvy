@@ -2,6 +2,10 @@
 
 TcpClient::TcpClient(QObject *parent) : QObject(parent)
 {
+    connect(socket, SIGNAL(connected()),this, SLOT(connected()));
+    connect(socket, SIGNAL(disconnected()),this, SLOT(disconnected()));
+    connect(socket, SIGNAL(bytesWritten(qint64)),this, SLOT(bytesWritten(qint64)));
+    connect(socket, SIGNAL(readyRead()),this, SLOT(readyRead()));
 
 }
 
@@ -10,12 +14,6 @@ int TcpClient::doConnect(QString ip, quint16 port){
 }
 
 int TcpClient::doConnect(QString ip, quint16 port, int timeOutMs){
-    socket = new QTcpSocket(this);
-
-    connect(socket, SIGNAL(connected()),this, SLOT(connected()));
-    connect(socket, SIGNAL(disconnected()),this, SLOT(disconnected()));
-    connect(socket, SIGNAL(bytesWritten(qint64)),this, SLOT(bytesWritten(qint64)));
-    connect(socket, SIGNAL(readyRead()),this, SLOT(readyRead()));
 
     socket->connectToHost(ip,port);
 
@@ -41,6 +39,18 @@ int TcpClient::send(QString s){
 
     } else {
         qDebug() << "Not connected!";
+        return -1;
+    }
+}
+
+int TcpClient::disconnectFromHost()
+{
+    socket->disconnectFromHost();
+    if (socket->state() == QAbstractSocket::UnconnectedState ||
+        socket->waitForDisconnected(1000)){
+        qDebug("Disconnected!");
+        return 0;
+    } else {
         return -1;
     }
 }

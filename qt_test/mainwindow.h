@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QtDebug>
+#include <QTimer>
 #include "tcpclient.h"
 #include "occulussensorcontroller.h"
 
@@ -28,10 +30,18 @@ private slots:
 
     void on_send_clicked();
 
+    void sendSensorData();
+
+    void connected();
+    void disconnected();
+
 private:
     Ui::MainWindow *ui;
     TcpClient client;
     OcculusSensorController oculus;
+    QTimer *timer = new QTimer(this);
+    void stopSendData();
+    void startSendData();
 };
 
 #endif // MAINWINDOW_H

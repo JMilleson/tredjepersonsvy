@@ -168,12 +168,48 @@
      <string>Get sensor data</string>
     </property>
    </widget>
+   <widget class="Line" name="line_2">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>230</y>
+      <width>501</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="interval">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>250</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>250</y>
+      <width>71</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Send intervall</string>
+    </property>
+   </widget>
    <widget class="QPushButton" name="pushSendSensorData">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>230</y>
-      <width>151</width>
+      <x>260</x>
+      <y>250</y>
+      <width>211</width>
       <height>21</height>
      </rect>
     </property>
