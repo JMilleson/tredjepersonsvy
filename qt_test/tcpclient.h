@@ -3,20 +3,24 @@
 
 #include <QObject>
 #include <QTcpSocket>
+#include <QThread>
+#include "connectworker.h"
 
 class TcpClient : public QObject
 {
     Q_OBJECT
 public:
     explicit TcpClient(QObject *parent = 0);
-    int doConnect(QString ip, quint16 port);
-    int doConnect(QString ip, quint16 port, int timeOutMS);
+    int doConnectASYNC(QString ip, quint16 port);
+    int doConnectASYNC(QString ip, quint16 port, int timeOutMS);
     int getDefaultTimeoutMS (){return defaultTimeoutMS;};
     int send(QString s);
     bool isConnected(){return socket->state()==QTcpSocket::ConnectedState;};
     int disconnectFromHost();
     QTcpSocket * getSocket(){return socket;};
 
+    int doConnect(QString ip, quint16 port);
+    int doConnect(QString ip, quint16 port, int timeOutMS);
 signals:
 
 public slots:

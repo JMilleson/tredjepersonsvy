@@ -24,6 +24,7 @@ int OcculusSensorController::init(){
     ovrHmdDesc desc = ovr_GetHmdDesc(session);
     ovrSizei resolution = desc.Resolution;
 
+    qDebug() << "Oculus initiated";
     return 0;
 
 }

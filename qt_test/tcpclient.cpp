@@ -13,20 +13,40 @@ int TcpClient::doConnect(QString ip, quint16 port){
     return this->doConnect(ip,port,getDefaultTimeoutMS());
 }
 
-int TcpClient::doConnect(QString ip, quint16 port, int timeOutMs){
-
+int TcpClient::doConnect(QString ip, quint16 port, int timeOutMS)
+{
     socket->connectToHost(ip,port);
 
-    if(socket->waitForConnected(timeOutMs))
-     {
-         qDebug() << "Connected!";
-         return 0;
-     }
-     else
-     {
-         qDebug() << "Not connected!";
-         return -1;
-     }
+    if(socket->waitForConnected(timeOutMS))
+    {
+        qDebug() << "Connected!";
+        return 0;
+    }
+    else
+    {
+        qDebug() << "Not connected!";
+        return -1;
+    }
+}
+
+
+int TcpClient::doConnectASYNC(QString ip, quint16 port){
+    return this->doConnectASYNC(ip,port,getDefaultTimeoutMS());
+}
+
+int TcpClient::doConnectASYNC(QString ip, quint16 port, int timeOutMs){
+
+    QThread* thread = new QThread();
+    ConnectWorker* worker = new ConnectWorker(socket, timeOutMs);
+    worker->moveToThread(thread);
+    connect(thread, SIGNAL(started()), worker, SLOT(process()));
+    connect(worker, SIGNAL(finished()), thread, SLOT(quit()));
+    //connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+    //connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+
+    socket->connectToHost(ip,port);
+    thread->start();
+    return 0;
 }
 
 int TcpClient::send(QString s){

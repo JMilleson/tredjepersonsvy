@@ -34,6 +34,7 @@ private slots:
 
     void connected();
     void disconnected();
+    void connectSocket();
 
 private:
     Ui::MainWindow *ui;

@@ -48,10 +48,8 @@ void MainWindow::on_pushConnect_clicked()
         ui->pushConnect->setStyleSheet("background-color: yellow");
         qApp->processEvents();
 
-        if(client.doConnect(ui->ip->text(), ui->port->text().toInt())<0){
-            ui->pushConnect->setStyleSheet("background-color: red");
-            ui->pushConnect->setText("Connect failed.");
-        }
+        connectSocket();
+        //client.doConnectASYNC(ui->ip->text(), ui->port->text().toInt());
     }
 }
 
@@ -96,6 +94,14 @@ void MainWindow::disconnected()
     ui->pushConnect->setText("Connect");
     ui->send->setEnabled(false);
     this->stopSendData();
+}
+
+void MainWindow::connectSocket()
+{
+    if(client.doConnect(ui->ip->text(), ui->port->text().toInt())<0){
+        ui->pushConnect->setStyleSheet("background-color: red");
+        ui->pushConnect->setText("Connect failed.");
+    }
 }
 
 void MainWindow::stopSendData()

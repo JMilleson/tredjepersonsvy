@@ -17,13 +17,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     tcpclient.cpp \
     occulussensorcontroller.cpp \
-    occulussensocontrollersimulator.cpp
+    occulussensocontrollersimulator.cpp \
+    connectworker.cpp
 
 HEADERS  += mainwindow.h \
     tcpclient.h \
     occulussensorcontroller.h \
     occulussensocontrollersimulator.h \
-    json.hpp
+    json.hpp \
+    connectworker.h
 
 FORMS    += mainwindow.ui
 
