@@ -3,8 +3,6 @@
 /*
  * control_follow.cpp - init and run calls for follow flight mode
  */
-float kp = 0.2f, ki = 0, kd = 0;
-int16_t integral = 0, derivative = 0;
 int16_t previousError = 0;
 uint32_t lastTime = 0;
 
@@ -67,14 +65,16 @@ static void follow_run()
     // call position controller's z-axis controller or simply pass through throttle
     //   attitude_control.set_throttle_out(desired throttle, true);
     if(altitude_updated){
+        follow_target_height = 200;
         altitude_updated = 0;
-        uint16_t dt = millis()- lastTime;
+        uint32_t currentTime = millis();
+        uint16_t dt = (currentTime- lastTime) / 1000;
         distance_error =  follow_target_height - follow_sonar_height;
         integral += distance_error * dt;
         derivative = (distance_error - previousError) / dt;
         follow_throttle = (int16_t)constrain_float(600 + kp * distance_error + ki * integral + kd * derivative, 0, 1000);
         previousError = distance_error;
-        lastTime = millis();
+        lastTime = currentTime;
     }
 
     attitude_control.angle_ef_roll_pitch_rate_ef_yaw_smooth(target_roll, target_pitch, target_yaw_rate, get_smoothing_gain());

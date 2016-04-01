@@ -14,6 +14,8 @@ int16_t follow_oculus_yaw_offset = -1;
 int16_t follow_yaw = 0;
 int altitude_updated = 0;
 
+float kp = 0.25f, ki = 0.1f, kd = 0;
+int32_t integral = 0, derivative = 0;
 
 #if WII_CAMERA == 1
 WiiCamera           ircam;

@@ -109,7 +109,7 @@ void userhook_50Hz()
 
 			float currentHeight2 = currentHeight/(sqrt( sq( tan( radians( abs((float)ahrs.roll_sensor) / 100 ))) + sq( tan(radians(abs((float)ahrs.pitch_sensor) / 100))) + 1));
 			follow_sonar_height = currentHeight2;
-			follow_target_height = targetHeight;
+			//follow_target_height = targetHeight;
 			follow_oculus_yaw = compass + follow_oculus_yaw_offset;
 			altitude_updated = 1;
 			//float tmpHeight1 = 100/(sqrt( sq( tan( radians( abs((float)4500) / 100 ))) + sq( tan(radians(abs((float)0) / 100))) + 1));
@@ -238,6 +238,8 @@ void userhook_SuperSlowLoop()
 	hal.console->printf("follow_sonar_height %d\n", follow_sonar_height);
 	hal.console->printf("follow_yaw %d\n", follow_yaw);
 	hal.console->printf("throttle %d\n",  g.rc_3.control_in);
+	hal.console->printf("yaw %d\n",  g.rc_4.control_in);
+	hal.console->printf("integral %d\n",  integral);
 
 
 
