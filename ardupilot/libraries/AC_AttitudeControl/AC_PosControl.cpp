@@ -90,6 +90,13 @@ void AC_PosControl::set_dt(float delta_sec)
     _accel_error_filter.set_cutoff_frequency(_dt,POSCONTROL_ACCEL_ERROR_CUTOFF_FREQ);
 }
 
+
+void AC_PosControl::set_desired_velocity_z(float climb_rate_cms)
+{
+    _vel_desired.z = climb_rate_cms;
+}
+
+
 /// set_speed_z - sets maximum climb and descent rates
 /// To-Do: call this in the main code as part of flight mode initialisation
 ///     calc_leash_length_z should be called afterwards

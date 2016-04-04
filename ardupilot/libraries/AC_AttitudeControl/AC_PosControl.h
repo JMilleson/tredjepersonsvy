@@ -62,6 +62,8 @@ public:
     void set_dt(float delta_sec);
     float get_dt() const { return _dt; }
 
+    void set_desired_velocity_z(float climb_rate_cms);
+
     ///
     /// z position controller
     ///
