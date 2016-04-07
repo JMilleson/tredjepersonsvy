@@ -51,6 +51,7 @@ int TcpClient::doConnectASYNC(QString ip, quint16 port, int timeOutMs){
 
 int TcpClient::send(QString s){
     if(socket->state() == socket->ConnectedState){
+        s+=char(4); //+ EOT character
         if(socket->write(s.toStdString().c_str()) &&  socket->waitForBytesWritten(10000)){
             return 0;
         } else {
@@ -80,7 +81,7 @@ void TcpClient::connected()
     qDebug() << "connected...";
 
     // Hey server, tell me about you.
-    socket->write("hej martin");
+    // socket->write("hej martin");
 }
 
 void TcpClient::disconnected()
