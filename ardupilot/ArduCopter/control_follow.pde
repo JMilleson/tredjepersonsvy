@@ -68,7 +68,7 @@ static void follow_run()
         follow_target_height = 200;
         altitude_updated = 0;
         uint32_t currentTime = millis();
-        uint16_t dt = (currentTime- lastTime) / 1000;
+        uint16_t dt = currentTime- lastTime;
         distance_error =  follow_target_height - follow_sonar_height;
         integral += distance_error * dt;
         derivative = (distance_error - previousError) / dt;
