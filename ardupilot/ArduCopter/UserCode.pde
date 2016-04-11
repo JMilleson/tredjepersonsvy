@@ -57,7 +57,9 @@ void userhook_50Hz()
 	}
 	
 	
-	if(values[i] == ETX){
+	if(values[i - 1] == ETX){
+		values[i] = '\0';
+		hal.console->printf("values %s\n",  values);
 		//values[21] = '\0';
 		//gcs_send_text_fmt(PSTR("values: %s"), values);
 		//gcs_send_text_fmt(PSTR("value 1: %d\n value 4: %d"), values[1], values[4]);
@@ -81,6 +83,8 @@ void userhook_50Hz()
 		//follow_target_height = targetHeight;
 		follow_int_variables[OCULUS_YAW] = follow_int_variables[OCULUS_YAW] + follow_oculus_yaw_offset;
 		altitude_updated = 1;
+		hal.console->printf("current height %d\n",  follow_int_variables[CURRENT_HEIGHT]);
+		hal.console->printf("throttle P %f\n",  follow_float_variables[THROTTLE_P]);
 		//float tmpHeight1 = 100/(sqrt( sq( tan( radians( abs((float)4500) / 100 ))) + sq( tan(radians(abs((float)0) / 100))) + 1));
 		//float tmpHeight2 = 100/(sqrt( sq( tan( radians( abs((float)2500) / 100 ))) + sq( tan(radians(abs((float)2500) / 100))) + 1));
 		//gcs_send_text_fmt(PSTR("compass: %d\ncurrent height: %d\nforward: %d\nrotate: %d\ntarget height: %d"), compass, currentHeight, forward, rotate, targetHeight);
@@ -199,11 +203,11 @@ void userhook_SuperSlowLoop()
 {
 
 	hal.console->printf("follow_thottle %d\n", follow_throttle);
-	hal.console->printf("follow_sonar_height %d\n", follow_sonar_height);
+	hal.console->printf("follow_sonar_height %d\n", follow_int_variables[CURRENT_HEIGHT]);
 	hal.console->printf("follow_yaw %d\n", follow_yaw);
 	hal.console->printf("throttle %d\n",  g.rc_3.control_in);
 	hal.console->printf("yaw %d\n",  g.rc_4.control_in);
-	hal.console->printf("integral %d\n",  integral);
+	hal.console->printf("integral %d\n",  throttleIntegral);
 
 
 
