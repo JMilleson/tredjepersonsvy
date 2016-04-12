@@ -4,8 +4,11 @@
 #include <QMainWindow>
 #include <QtDebug>
 #include <QTimer>
+#include <QTime>
 #include "tcpclient.h"
 #include "occulussensorcontroller.h"
+#include <QJsonDocument>
+#include <QJsonObject>
 
 namespace Ui {
 class MainWindow;
@@ -30,15 +33,18 @@ private slots:
 
     void on_send_clicked();
 
-    void sendSensorData();
+    void on_pushSendSettings_clicked();
 
+    void sendSensorData();
     void connected();
     void disconnected();
     void connectSocket();
+    void sentData(QString s);
+    void receivedData(QString s);
 
 private:
     Ui::MainWindow *ui;
-    TcpClient client;
+    TcpClient * client = new  TcpClient();
     OcculusSensorController oculus;
     QTimer *timer = new QTimer(this);
     void stopSendData();

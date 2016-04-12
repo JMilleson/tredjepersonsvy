@@ -51,8 +51,9 @@ int TcpClient::doConnectASYNC(QString ip, quint16 port, int timeOutMs){
 
 int TcpClient::send(QString s){
     if(socket->state() == socket->ConnectedState){
-        s+=char(4); //+ EOT character
+        //s+=char(4); //+ EOT character
         if(socket->write(s.toStdString().c_str()) &&  socket->waitForBytesWritten(10000)){
+            emit notifySentData(s);
             return 0;
         } else {
             return -2;
@@ -99,5 +100,7 @@ void TcpClient::readyRead()
     qDebug() << "reading...";
 
     // read the data from the socket
-    qDebug() << socket->readAll();
+    QString r = socket->readAll();
+    qDebug() << r;
+    emit notifyReceivedData(r);
 }

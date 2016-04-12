@@ -22,7 +22,8 @@ public:
     int doConnect(QString ip, quint16 port);
     int doConnect(QString ip, quint16 port, int timeOutMS);
 signals:
-
+    void notifySentData(QString s);
+    void notifyReceivedData(QString s);
 public slots:
     void connected();
     void disconnected();
