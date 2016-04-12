@@ -3,8 +3,8 @@
 /*
  * control_follow.cpp - init and run calls for follow flight mode
  */
-int16_t previousError = 0;
-uint32_t lastTime = 0;
+int16_t previousHeightError = 0;
+uint32_t throttleLastTime = 0, lastTime = 0;
 
 // follow_init - initialise follow mode
 static bool follow_init(bool ignore_checks)
@@ -19,8 +19,6 @@ static bool follow_init(bool ignore_checks)
     //g.rc_3.control_in
     //values between 0 and 1000
 
-    follow_throttle = g.rc_3.control_in;
-
     lastTime = millis();
 
     hal.console->println("debug: init follow_run");
@@ -31,8 +29,7 @@ static bool follow_init(bool ignore_checks)
 // will be called at 100hz or more
 static void follow_run()
 {
-    float distance_error;
-    float velocity_correction;
+    int16_t height_error;
     int16_t target_roll, target_pitch;
     float target_yaw_rate;
 
@@ -44,10 +41,8 @@ static void follow_run()
         return;
     }
 
-     get_pilot_desired_lean_angles(g.rc_1.control_in, g.rc_2.control_in, target_roll, target_pitch);
 
     // get pilot's desired yaw rate
-    target_yaw_rate = get_pilot_desired_yaw_rate(g.rc_4.control_in);
     //follow_target_climb_rate = get_pilot_desired_climb_rate(g.rc_3.control_in);
 
     //hal.console->println("debug: follow_run");
@@ -64,19 +59,33 @@ static void follow_run()
 
     // call position controller's z-axis controller or simply pass through throttle
     //   attitude_control.set_throttle_out(desired throttle, true);
+
+    //update throttle
     if(altitude_updated){
-        follow_target_height = 200;
+        //temporary
+        follow_int_variables[TARGET_HEIGHT] = 200;
+
         altitude_updated = 0;
         uint32_t currentTime = millis();
-        uint16_t dt = (currentTime- lastTime) / 1000;
-        distance_error =  follow_target_height - follow_sonar_height;
-        integral += distance_error * dt;
-        derivative = (distance_error - previousError) / dt;
-        follow_throttle = (int16_t)constrain_float(600 + kp * distance_error + ki * integral + kd * derivative, 0, 1000);
-        previousError = distance_error;
-        lastTime = currentTime;
+        uint16_t dt = currentTime- throttleLastTime;
+        height_error =  follow_int_variables[TARGET_HEIGHT] - follow_int_variables[CURRENT_HEIGHT];
+        throttleIntegral += height_error * dt;
+        throttleDerivative = ((float)(height_error - previousHeightError)) / dt;
+        follow_throttle = (int16_t)constrain_float(600 + follow_float_variables[THROTTLE_P] * height_error + follow_float_variables[THROTTLE_I] * throttleIntegral + follow_float_variables[THROTTLE_D] * throttleDerivative, 0, 1000);
+        previousHeightError = height_error;
+        throttleLastTime = currentTime;
     }
 
+    //update yaw
+
+    //update roll
+
+    //update pitch
+
+    target_yaw_rate = get_pilot_desired_yaw_rate(g.rc_4.control_in);
+    get_pilot_desired_lean_angles(g.rc_1.control_in, g.rc_2.control_in, target_roll, target_pitch);
+//    target_yaw_rate = get_pilot_desired_yaw_rate(follow_yaw);
+//    get_pilot_desired_lean_angles(follow_roll, follow_pitch, target_roll, target_pitch);
     attitude_control.angle_ef_roll_pitch_rate_ef_yaw_smooth(target_roll, target_pitch, target_yaw_rate, get_smoothing_gain());
     attitude_control.set_throttle_out(follow_throttle, true);
 
