@@ -16,10 +16,13 @@ class ThreadedTCPHandler(socketserver.BaseRequestHandler):
     """
 
     def handle(self):
-        self.data = self.request.recv(1024).strip()
-        cur_thread = threading.current_thread();
-        print ("data received from {} .".format(self.client_address[0]))
-        self.server.notify("ReceivedTCP",self.data)
+        close = False
+        while not close:
+            self.data = self.request.recv(1024).strip()
+            cur_thread = threading.current_thread();
+            print ("data received from {} .".format(self.client_address[0]))
+            self.server.notify("ReceivedTCP",self.data)
+            self.request.sendto(b'Thanks!', self.client_address)
         
     
 
