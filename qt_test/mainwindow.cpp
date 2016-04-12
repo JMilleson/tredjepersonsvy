@@ -116,7 +116,7 @@ void MainWindow::sentData(QString s){
 
 
 void MainWindow::receivedData(QString s){
-    if(!ui->pauseSendLog->isChecked())
+    if(!ui->pauseReceiveLog->isChecked())
         ui->networkReceiveLog->setText(QTime::currentTime().toString()+"-> "+s+'\n'+ui->networkReceiveLog->toPlainText());
 }
 
