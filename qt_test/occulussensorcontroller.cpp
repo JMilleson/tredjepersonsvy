@@ -38,7 +38,9 @@ int OcculusSensorController::updateTracking(){
     if (ts.StatusFlags & (ovrStatus_OrientationTracked | ovrStatus_PositionTracked)) {
         pose = ts.HeadPose.ThePose;
         pose.Rotation.GetEulerAngles<Axis_Y, Axis_X, Axis_Z>(&this->sensorData.yaw, &this->sensorData.roll, &this->sensorData.pitch);
-
+        this->sensorData.yaw = qRadiansToDegrees(this->sensorData.yaw);
+        this->sensorData.roll = qRadiansToDegrees(this->sensorData.roll);
+        this->sensorData.pitch = qRadiansToDegrees(this->sensorData.pitch);
         return 0;
 
         /*yaw = yaw * 180 / 3.1416;

@@ -1,6 +1,7 @@
 #ifndef OCCULUSSENSORCONTROLLER_H
 #define OCCULUSSENSORCONTROLLER_H
 
+#include <QtMath>
 #include <QObject>
 #include <OVR_CAPI.h>
 #include <OVR_Math.h>
