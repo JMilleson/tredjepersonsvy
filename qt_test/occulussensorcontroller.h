@@ -5,9 +5,8 @@
 #include <OVR_CAPI.h>
 #include <OVR_Math.h>
 #include <QtDebug>
-#include "json.hpp"
-using json = nlohmann::json;
-
+#include <QJsonDocument>
+#include <QJsonObject>
 struct SensorData {
     float pitch, yaw, roll;
 };
@@ -24,7 +23,7 @@ public:
     int init();
     int updateTracking();
     SensorData getSensorData(){return sensorData;}
-    json getSensorDataAsJSON();
+    QJsonObject getSensorDataAsJSON();
 signals:
 
 public slots:

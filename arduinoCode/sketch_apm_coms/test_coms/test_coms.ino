@@ -1,11 +1,12 @@
 
 
-#include <Wire.h>
+//#include <Wire.h>
  
 #define SLAVE_ADDRESS 0x04
 
 #define STX '\002'
 #define ETX '\003'
+#define divider '|'
 //#define STX 'a'
 //#define ETX 'b'
 
@@ -32,12 +33,68 @@ void setup() {
 }
  
 void loop() {
-  updateHeight();
+  //updateHeight();
   //updatePosition();
-  sendDataToApm();    
-  delay(50);
+  //sendDataToApm();
+  testSend();    
+  delay(1000);
 }
 
+void testSend(){
+  int16_t ints[5];
+  float doubles[12];
+  ints[0] = 111;
+  ints[1] = -222;
+  ints[2] = 333;
+  ints[3] = 444;
+  ints[4] = 555;
+  doubles[0] = 0.1;
+  doubles[1] = 0.1;
+  doubles[2] = 0.1;
+  doubles[3] = 0.01;
+  doubles[4] = 0.01;
+  doubles[5] = 0.01;
+  doubles[6] = 0.2;
+  doubles[7] = 0.2;
+  doubles[8] = 0.2;
+  doubles[9] = 0.001;
+  doubles[10] = 0.001;
+  doubles[11] = 0.001;
+  unsigned char data[256];
+  data[0] = STX;
+  int16_t count = 1;
+  for (int i = 0; i < 5; i++)
+  {
+    char str[8];
+    sprintf(str,"%d", ints[i]);
+    for (int a = 0; a < sizeof(str) / sizeof(str[0]); a++)
+    {
+      if (str[a] == '\0') {
+        break;
+      }
+      data[count++] = str[a];
+    }
+    data[count++] = divider;
+  }
+  for (int i = 0; i < 12; i++)
+  {
+    char str[12];
+    dtostrf(doubles[i], 5, 5, str);
+    for (int a = 0; a < sizeof(str) / sizeof(str[0]); a++)
+    {
+      if (str[a] == '\0') {
+        break;
+      }
+      data[count++] = str[a];
+    }
+    data[count++] = divider;
+  }
+  data[count++] = ETX;
+
+  Serial.write(data, count);
+}
+
+/*
 void sendDataToApm(){
   unsigned char values[21];
   getDataToSend(values);
@@ -143,3 +200,4 @@ void receiveDataFromPi(int byteCount){
     
   }
 }
+*/

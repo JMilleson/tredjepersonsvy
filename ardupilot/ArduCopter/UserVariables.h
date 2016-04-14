@@ -7,15 +7,39 @@
 #ifdef USERHOOK_VARIABLES
 
 int16_t follow_throttle = 0;
+int16_t follow_yaw = 0;
+int16_t follow_roll = 0;
+int16_t follow_pitch = 0;
 int16_t follow_target_height = 200;
 int16_t follow_sonar_height = 200;
 int16_t follow_oculus_yaw = 0;
 int16_t follow_oculus_yaw_offset = -1;
-int16_t follow_yaw = 0;
+int16_t follow_distance_to_user = -1;
+int16_t follow_target_distance = 300;
+int16_t follow_roll_error = -1;
 int altitude_updated = 0;
 
-float kp = 0.25f, ki = 0.1f, kd = 0;
-int32_t integral = 0, derivative = 0;
+float throttleP = 0.25f, throttleI = 0.0001f, throttleD = 0;
+float yawP = 0.25f, yawI = 0.0001f, yawD = 0;
+float rollP = 0.25f, rollI = 0.0001f, rollD = 0;
+float pitchP = 0.25f, pitchI = 0.0001f, pitchD = 0;
+
+int32_t throttleIntegral = 0, throttleDerivative = 0;
+int32_t yawIntegral = 0, yawDerivative = 0;
+int32_t rollIntegral = 0, rollDerivative = 0;
+int32_t pitchIntegral = 0, pitchDerivative = 0;
+
+#define STX '\002'
+#define ETX '\003'
+#define DIVIDER '|'
+
+#define TRACK_DATA_ID '0'
+#define SETTINGS_ID '1'
+#define THROTTLE_PID_ID '2'
+#define YAW_PID_ID '3'
+#define ROLL_PID_ID '4'
+#define PITCH_PID_ID '5'
+
 
 #if WII_CAMERA == 1
 WiiCamera           ircam;

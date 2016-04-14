@@ -8,8 +8,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(sendSensorData()));
 
-    connect(client.getSocket(), SIGNAL(connected()),this, SLOT(connected()));
-    connect(client.getSocket(), SIGNAL(disconnected()),this, SLOT(disconnected()));
+    connect(client->getSocket(), SIGNAL(connected()),this, SLOT(connected()));
+    connect(client->getSocket(), SIGNAL(disconnected()),this, SLOT(disconnected()));
+    connect(client,SIGNAL(notifySentData(QString)),this,SLOT(sentData(QString)));
+    connect(client,SIGNAL(notifyReceivedData(QString)),this,SLOT(receivedData(QString)));
 }
 
 MainWindow::~MainWindow()
@@ -17,17 +19,41 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::on_pushSendSettings_clicked(){
+    QJsonObject settings
+    {
+        {"trottlep", ui->trottleP->text()},
+        {"trottlei", ui->trottleI->text()},
+        {"trottled", ui->trottleD->text()},
+        {"yawp", ui->yawP->text()},
+        {"yawi", ui->yawI->text()},
+        {"yawd", ui->yawD->text()},
+        {"rollp", ui->rollP->text()},
+        {"rolli", ui->rollI->text()},
+        {"rolld", ui->rollD->text()},
+        {"pitchp", ui->pitchP->text()},
+        {"pitchi", ui->pitchI->text()},
+        {"pitchd", ui->pitchD->text()},
+        {"targetHeight", ui->targetHeight->text()},
+        {"targetDistance", ui->targetDistance->text()}
+    };
+
+    QJsonDocument jsonDoc = QJsonDocument(settings);
+    client->send(jsonDoc.toJson());
+}
+
 void MainWindow::on_pushGetSensorData_clicked(){
     qDebug() << "Attempting to get sensor data...";
     oculus.updateTracking();
-    json data =oculus.getSensorDataAsJSON();
-    ui->sensorOutput->setText(QString::fromStdString(data.dump()));
+    QJsonObject data =oculus.getSensorDataAsJSON();
+    QJsonDocument jsonDoc = QJsonDocument(data);
+    ui->sensorOutput->setText(jsonDoc.toJson());
 }
 
 void MainWindow::on_pushSendSensorData_clicked()
 {
     if(!timer->isActive())
-        if(client.isConnected())
+        if(client->isConnected())
             this->startSendData();
         else qDebug() << "not connected" ;
     else
@@ -36,9 +62,9 @@ void MainWindow::on_pushSendSensorData_clicked()
 
 void MainWindow::on_pushConnect_clicked()
 {
-    if(client.isConnected()){
+    if(client->isConnected()){
         qDebug() << "Disconencting from " << ui->ip->text();
-        if (client.disconnectFromHost() >= 0){
+        if (client->disconnectFromHost() >= 0){
             ui->pushConnect->setText("Connect");
             ui->pushConnect->setStyleSheet("background-color: gray");
         }
@@ -70,16 +96,30 @@ void MainWindow::on_pushInitOculus_clicked()
 void MainWindow::on_send_clicked()
 {
     qDebug() << "Sending message";
-    client.send(ui->sendMessage->text());
+    client->send(ui->sendMessage->text());
 }
 
 void MainWindow::sendSensorData()
 {
     qDebug() << "Sending sensor data";
     oculus.updateTracking();
-    json data =oculus.getSensorDataAsJSON();
-    client.send(QString::fromStdString(data.dump()));
+
+    QJsonObject data =oculus.getSensorDataAsJSON();
+    QJsonDocument jsonDoc = QJsonDocument(data);
+    client->send(jsonDoc.toJson());
 }
+
+void MainWindow::sentData(QString s){
+    if(!ui->pauseSendLog->isChecked())
+        ui->networkSendLog->setText(QTime::currentTime().toString()+"-> "+s+'\n'+ui->networkSendLog->toPlainText());
+}
+
+
+void MainWindow::receivedData(QString s){
+    if(!ui->pauseReceiveLog->isChecked())
+        ui->networkReceiveLog->setText(QTime::currentTime().toString()+"-> "+s+'\n'+ui->networkReceiveLog->toPlainText());
+}
+
 
 void MainWindow::connected()
 {
@@ -98,7 +138,7 @@ void MainWindow::disconnected()
 
 void MainWindow::connectSocket()
 {
-    if(client.doConnect(ui->ip->text(), ui->port->text().toInt())<0){
+    if(client->doConnect(ui->ip->text(), ui->port->text().toInt())<0){
         ui->pushConnect->setStyleSheet("background-color: red");
         ui->pushConnect->setText("Connect failed.");
     }
