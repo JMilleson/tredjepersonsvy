@@ -70,12 +70,16 @@ int OcculusSensorController::updateTracking(){
 QJsonObject OcculusSensorController::getSensorDataAsJSON()
 {
 
-    QJsonObject settings
+    QJsonObject sensordata
     {
         {"pitch", sensorData.pitch},
         {"yaw", sensorData.yaw},
         {"roll", sensorData.roll}
     };
 
-    return settings;
+    QJsonObject data = {
+        {"sensordataoculus", sensordata}
+    };
+
+    return data;
 }
