@@ -27,7 +27,7 @@ class ThreadedTCPHandler(socketserver.BaseRequestHandler):
     
 
 class ServerManager ():
-    def __init__(self, host="192.168.42.1", port=1338):
+    def __init__(self,port=1338, host="192.168.42.1"):
         self.serverInfo = {"host":host,
                       "port":port}
         self.server = ThreadedTCPServer((self.serverInfo["host"], self.serverInfo["port"]), ThreadedTCPHandler)

@@ -20,26 +20,51 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::on_pushSendSettings_clicked(){
-    QJsonObject settings
-    {
-        {"trottlep", ui->trottleP->text()},
-        {"trottlei", ui->trottleI->text()},
-        {"trottled", ui->trottleD->text()},
-        {"yawp", ui->yawP->text()},
-        {"yawi", ui->yawI->text()},
-        {"yawd", ui->yawD->text()},
-        {"rollp", ui->rollP->text()},
-        {"rolli", ui->rollI->text()},
-        {"rolld", ui->rollD->text()},
-        {"pitchp", ui->pitchP->text()},
-        {"pitchi", ui->pitchI->text()},
-        {"pitchd", ui->pitchD->text()},
+    QJsonObject trottlePid ={
+        {"p", ui->trottleP->text()},
+        {"i", ui->trottleI->text()},
+        {"d", ui->trottleD->text()}
+    };
+
+    QJsonObject yawPid ={
+        {"p", ui->yawP->text()},
+        {"i", ui->yawI->text()},
+        {"d", ui->yawD->text()}
+    };
+
+    QJsonObject rollPid ={
+        {"p", ui->rollP->text()},
+        {"i", ui->rollI->text()},
+        {"d", ui->rollD->text()}
+    };
+
+    QJsonObject pitchPid ={
+        {"p", ui->pitchP->text()},
+        {"i", ui->pitchI->text()},
+        {"d", ui->pitchD->text()}
+    };
+
+    QJsonObject target = {
         {"targetHeight", ui->targetHeight->text()},
         {"targetDistance", ui->targetDistance->text()}
     };
 
-    QJsonDocument jsonDoc = QJsonDocument(settings);
-    client->send(jsonDoc.toJson());
+    QJsonObject settings = {
+        {"trottle", trottlePid},
+        {"yaw", yawPid},
+        {"roll", rollPid},
+        {"pitch", pitchPid},
+        {"target", target}
+    };
+
+    QJsonObject sendData = {
+        {"settings", settings}
+    };
+
+    QJsonDocument data(sendData);
+    client->send(data.toJson());
+
+    /**/
 }
 
 void MainWindow::on_pushGetSensorData_clicked(){
