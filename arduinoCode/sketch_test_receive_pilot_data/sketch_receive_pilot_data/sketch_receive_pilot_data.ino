@@ -1,12 +1,13 @@
 
+#include <Wire.h>
 
 
-#define STX 'a'
-#define ETX 'b'
+#define STX '\002'
+#define ETX '\003'
 #define DIVIDER '|'
 
-#define TRACK_DATA_ID '0'
-#define SETTINGS_ID '1'
+#define TRACK_DATA_ID '1'
+#define SETTINGS_ID '6'
 #define THROTTLE_PID_ID '2'
 #define YAW_PID_ID '3'
 #define ROLL_PID_ID '4'
@@ -26,19 +27,67 @@ float yawP = 0.0f, yawI = 0.0f, yawD = 0.0f;
 float rollP = 0.0f, rollI = 0.0f, rollD = 0.0f;
 float pitchP = 0.0f, pitchI = 0.0f, pitchD = 0.0f;
 
+int canReceive = 1;
+
+#define SLAVE_ADDRESS 0x04
 
 
 void setup() {
+  delay(2000);
   Serial.begin(57600);
+ // initialize i2c as slave
+  Wire.begin(SLAVE_ADDRESS);
+
+ // define callbacks for i2c communication
+ Wire.onReceive(readSerial);
+ //Wire.onRequest(sendData);
 }
 
+
+
+
 long receivedCount = 0;
-char received[128];
+char received[256];
 
 void loop() {
 	delay(2000);
-	readSerial();
 	printVars();
+	if(!canReceive){
+		char id = received[1];
+		switch (id) {
+			case TRACK_DATA_ID:
+				updateTrackData();
+				receivedCount = 0;
+				canReceive = 1;
+				break;
+			case SETTINGS_ID:
+				updateSettings();
+				receivedCount = 0;
+				canReceive = 1;
+				break;
+			case THROTTLE_PID_ID:
+				updateThrottlePid();
+				receivedCount = 0;
+				canReceive = 1;
+				break;
+			case YAW_PID_ID:
+				updateYawPid();
+				receivedCount = 0;
+				canReceive = 1;
+				break;
+			case ROLL_PID_ID:
+				updateRollPid();
+				receivedCount = 0;
+				canReceive = 1;
+				break;
+			case PITCH_PID_ID:
+				updatePitchPid();
+				receivedCount = 0;
+				canReceive = 1;
+				break;
+
+		}
+	}
 }
 
 void printVars(){
@@ -104,60 +153,36 @@ void printVars(){
 
 }
 
-void readSerial(){
+void readSerial(int byteCount){
+	if(!canReceive){
+		return;
+	}
 	if(receivedCount == 0){
-		while(Serial.available()){
-			if(Serial.read() == STX){
+		while(Wire.available()){
+			if(Wire.read() == STX){
 				received[receivedCount++] = STX;
 				break;
 			}
 		}
 	}
 
-	while(Serial.available() && receivedCount > 0 && received[receivedCount - 1] != ETX){
-		received[receivedCount++] = Serial.read();
+	while(Wire.available() && receivedCount > 0 && received[receivedCount - 1] != ETX){
+		received[receivedCount++] = Wire.read();
 	}
 
-	if(receivedCount > 0 && received[receivedCount - 1] == ETX){
-		char id = received[1];
-		switch (id) {
-			case TRACK_DATA_ID:
-				updateTrackData();
-				receivedCount = 0;
-				break;
-			case SETTINGS_ID:
-				updateSettings();
-				receivedCount = 0;
-				break;
-			case THROTTLE_PID_ID:
-				updateThrottlePid();
-				receivedCount = 0;
-				break;
-			case YAW_PID_ID:
-				updateYawPid();
-				receivedCount = 0;
-				break;
-			case ROLL_PID_ID:
-				updateRollPid();
-				receivedCount = 0;
-				break;
-			case PITCH_PID_ID:
-				updatePitchPid();
-				receivedCount = 0;
-				break;
-
-		}
+	if(received[receivedCount - 1] == ETX){
+		canReceive = 0;
 	}
 }
 
 void updateTrackData(){
 	long index = 3;
+	follow_oculus_yaw = readInt(&index);
+	follow_roll_error = readInt(&index);
 	follow_sonar_height = readInt(&index);
 	//follow_sonar_height = compensate for tilt
-	follow_oculus_yaw = readInt(&index);
 	//follow_oculus_yaw = follow_oculus_yaw +- offset compensate for offset
 	follow_distance_to_user = readInt(&index);
-	follow_roll_error = readInt(&index);
 }
 
 void updateSettings(){

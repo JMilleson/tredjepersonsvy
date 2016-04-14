@@ -33,8 +33,8 @@ int32_t pitchIntegral = 0, pitchDerivative = 0;
 #define ETX '\003'
 #define DIVIDER '|'
 
-#define TRACK_DATA_ID '0'
-#define SETTINGS_ID '1'
+#define TRACK_DATA_ID '1'
+#define SETTINGS_ID '6'
 #define THROTTLE_PID_ID '2'
 #define YAW_PID_ID '3'
 #define ROLL_PID_ID '4'
