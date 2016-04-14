@@ -38,6 +38,7 @@ class ArdupilotComm:
     pitchPidid = '5'
     targetValuesid = '6'
 
+
     def __init__(self):
         pass
 
@@ -49,8 +50,8 @@ class ArdupilotComm:
         self.sendString(startChar)  # Indicate start of message
         
         self.sendString(pidtype) #Send a number indicating which pid parameters to send. 1 for ground 2 for distance and 3 for angle to user
+        
         self.sendChar(divChar)
-
         self.sendString( (kp)+divChar)
         self.sendString( (ki)+divChar)
         self.sendString( (kd)+divChar)
@@ -74,16 +75,18 @@ class ArdupilotComm:
 
 
     def sendString(self,str):
+        #print(str)
         for c in str:
             self.bus.write_byte(address,int.from_bytes(bytes(c,'utf-8'),'little'))
             
     def sendChar(self,charaa):
+        #print(charaa)
         self.bus.write_byte(address,int.from_bytes(bytes(charaa,'utf-8'),'little'))
 
     def sendTargets(self,targetHeight,targetDistance):
         self.sendChar(startChar)  # Indicate start of message
-        self.sendChar(divChar)
         self.sendChar(targetValuesid)
+        self.sendChar(divChar)
         self.sendString(targetHeight)
         self.sendChar(divChar)
         self.sendString(targetDistance)
