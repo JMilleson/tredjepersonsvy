@@ -5,6 +5,7 @@
 #include <QtDebug>
 #include <QTimer>
 #include <QTime>
+#include <QProcess>
 #include "tcpclient.h"
 #include "occulussensorcontroller.h"
 #include <QJsonDocument>
@@ -34,6 +35,10 @@ private slots:
     void on_send_clicked();
 
     void on_pushSendSettings_clicked();
+
+    void on_requestVideo_clicked();
+
+    void on_viewVideo_clicked();
 
     void sendSensorData();
     void connected();
