@@ -10,18 +10,19 @@ int16_t follow_throttle = 0;
 int16_t follow_yaw = 0;
 int16_t follow_roll = 0;
 int16_t follow_pitch = 0;
-//int16_t follow_target_height = 200;
-//int16_t follow_sonar_height = 200;
-//int16_t follow_oculus_yaw = 0;
+int16_t follow_target_height = 200;
+int16_t follow_sonar_height = 200;
+int16_t follow_oculus_yaw = 0;
 int16_t follow_oculus_yaw_offset = -1;
-//int16_t follow_distance_to_user = -1;
+int16_t follow_distance_to_user = -1;
+int16_t follow_target_distance = 300;
 //int16_t follow_roll_error = -1;
 int altitude_updated = 0;
 
-//float throttleP = 0.25f, throttleI = 0.0001f, throttleD = 0;
-//float yawP = 0.25f, yawI = 0.0001f, yawD = 0;
+float throttleP = 0.25f, throttleI = 0.0001f, throttleD = 0;
+float yawP = 0.25f, yawI = 0.0001f, yawD = 0;
 //float rollP = 0.25f, rollI = 0.0001f, rollD = 0;
-//float pitchP = 0.25f, pitchI = 0.0001f, pitchD = 0;
+float pitchP = 0.25f, pitchI = 0.0001f, pitchD = 0;
 
 int32_t throttleIntegral = 0, throttleDerivative = 0;
 int32_t yawIntegral = 0, yawDerivative = 0;
