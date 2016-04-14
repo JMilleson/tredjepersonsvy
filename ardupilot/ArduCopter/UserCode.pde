@@ -248,13 +248,28 @@ void userhook_SlowLoop()
 #ifdef USERHOOK_SUPERSLOWLOOP
 void userhook_SuperSlowLoop()
 {
-
+/*
 	hal.console->printf("follow_thottle %d\n", follow_throttle);
-	//hal.console->printf("follow_sonar_height %d\n", follow_int_variables[CURRENT_HEIGHT]);
 	hal.console->printf("follow_yaw %d\n", follow_yaw);
 	hal.console->printf("throttle %d\n",  g.rc_3.control_in);
 	hal.console->printf("yaw %d\n",  g.rc_4.control_in);
 	hal.console->printf("integral %d\n",  throttleIntegral);
+*/
+	hal.console->printf("target height %d\n",  follow_target_height);
+	hal.console->printf("current height %d\n",  follow_sonar_height);
+	hal.console->printf("oculus yaw %d\n",  follow_oculus_yaw);
+	hal.console->printf("distance to user %d\n",  follow_distance_to_user);
+	hal.console->printf("target distance %d\n",  follow_target_distance);
+	hal.console->printf("filips variabel %d\n",  follow_roll_error);
+
+	hal.console->printf("throttle p %f\n",  throttleP);
+	hal.console->printf("throttle i %f\n",  throttleI);
+	hal.console->printf("throttle d %f\n",  throttleD);
+
+	hal.console->printf("yaw offset %d\n",  follow_oculus_yaw_offset);
+
+//	received[receivedCount] = '\0';
+//	hal.console->printf("received %s\n",  received);
 
 
 
@@ -340,7 +355,7 @@ void updateTrackData(){
 	if(follow_oculus_yaw_offset == -1){
 		follow_oculus_yaw_offset = follow_oculus_yaw - ahrs.yaw_sensor;
 	}
-	follow_oculus_yaw = follow_oculus_yaw + follow_oculus_yaw_offset;
+	follow_oculus_yaw = follow_oculus_yaw - follow_oculus_yaw_offset;
 	follow_roll_error = readInt(&index);
 	follow_sonar_height = readInt(&index);
 	follow_sonar_height = follow_sonar_height/(sqrt( sq( tan( radians( abs((float)ahrs.roll_sensor) / 100 ))) + sq( tan(radians(abs((float)ahrs.pitch_sensor) / 100))) + 1));
