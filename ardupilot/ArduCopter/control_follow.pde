@@ -4,7 +4,9 @@
  * control_follow.cpp - init and run calls for follow flight mode
  */
 int16_t previousHeightError = 0;
-uint32_t throttleLastTime = 0, lastTime = 0;
+int16_t previousYawError = 0;
+int16_t previousPitchError = 0;
+uint32_t lastTime = 0;
 
 // follow_init - initialise follow mode
 static bool follow_init(bool ignore_checks)
@@ -29,7 +31,7 @@ static bool follow_init(bool ignore_checks)
 // will be called at 100hz or more
 static void follow_run()
 {
-    int16_t height_error;
+    int16_t height_error, yaw_error, pitch_error;
     int16_t target_roll, target_pitch;
     float target_yaw_rate;
 
@@ -60,27 +62,44 @@ static void follow_run()
     // call position controller's z-axis controller or simply pass through throttle
     //   attitude_control.set_throttle_out(desired throttle, true);
 
-    //update throttle
+    
     if(altitude_updated){
+        //update throttle
         //temporary
-        follow_int_variables[TARGET_HEIGHT] = 200;
+        follow_target_height = 200;
 
         altitude_updated = 0;
         uint32_t currentTime = millis();
-        uint16_t dt = currentTime- throttleLastTime;
-        height_error =  follow_int_variables[TARGET_HEIGHT] - follow_int_variables[CURRENT_HEIGHT];
+        uint16_t dt = currentTime - lastTime;
+        height_error =  follow_target_height - follow_sonar_height;
         throttleIntegral += height_error * dt;
         throttleDerivative = ((float)(height_error - previousHeightError)) / dt;
-        follow_throttle = (int16_t)constrain_float(600 + follow_float_variables[THROTTLE_P] * height_error + follow_float_variables[THROTTLE_I] * throttleIntegral + follow_float_variables[THROTTLE_D] * throttleDerivative, 0, 1000);
+        follow_throttle = (int16_t)constrain_float(600 + throttleP * height_error + throttleI * throttleIntegral + throttleD * throttleDerivative, 0, 1000);
         previousHeightError = height_error;
-        throttleLastTime = currentTime;
+
+
+        //update yaw
+        yaw_error = follow_oculus_yaw - ahrs.yaw_sensor;
+        yawIntegral += yaw_error * dt;
+        yawDerivative = ((float)(yaw_error - previousYawError)) / dt;
+        follow_yaw = (int16_t)constrain_float(0 + yawP * yaw_error + yawI * yawIntegral + yawD * yawDerivative, -4500, 4500);
+        previousYawError = yaw_error;
+
+        //update roll
+        
+
+
+        //update pitch
+        pitch_error = follow_target_distance - follow_distance_to_user;
+        pitchIntegral += pitch_error * dt;
+        pitchDerivative = ((float)(pitch_error - previousPitchError)) / dt;
+        follow_pitch = (int16_t)constrain_float(0 + pitchP * pitch_error + pitchI * pitchIntegral + pitchD * pitchDerivative, -4500, 4500);
+        previousPitchError = pitch_error;
+
+
+        lastTime = currentTime;
     }
 
-    //update yaw
-
-    //update roll
-
-    //update pitch
 
     target_yaw_rate = get_pilot_desired_yaw_rate(g.rc_4.control_in);
     get_pilot_desired_lean_angles(g.rc_1.control_in, g.rc_2.control_in, target_roll, target_pitch);

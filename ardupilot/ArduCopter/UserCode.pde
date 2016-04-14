@@ -1,8 +1,4 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
-//#define STX '|'
-//#define ETX '|'
-#define STX '\002'
-#define ETX '\003'
 
 #ifdef USERHOOK_INIT
 void userhook_init()
@@ -30,13 +26,63 @@ void userhook_FastLoop()
 }
 #endif
 
-uint16_t i = 0;
-char values[256];
+//uint16_t i = 0;
+//char values[256];
+long receivedCount = 0;
+char received[128];
 
 #ifdef USERHOOK_50HZLOOP
 void userhook_50Hz()
 {
-    // put your 50Hz code here
+
+	// put your 50Hz code here
+	if(receivedCount == 0){
+		while(hal.uartB->available()){
+			if(hal.uartB->read() == STX){
+				received[receivedCount++] = STX;
+				break;
+			}
+		}
+	}
+
+	while(hal.uartB->available() && receivedCount > 0 && received[receivedCount - 1] != ETX){
+		received[receivedCount++] = hal.uartB->read();
+	}
+
+	if(receivedCount > 0 && received[receivedCount - 1] == ETX){
+		char id = received[1];
+		switch (id) {
+			case TRACK_DATA_ID:
+				updateTrackData();
+				receivedCount = 0;
+				break;
+			case SETTINGS_ID:
+				updateSettings();
+				receivedCount = 0;
+				break;
+			case THROTTLE_PID_ID:
+				updateThrottlePid();
+				receivedCount = 0;
+				break;
+			case YAW_PID_ID:
+				updateYawPid();
+				receivedCount = 0;
+				break;
+			case ROLL_PID_ID:
+				updateRollPid();
+				receivedCount = 0;
+				break;
+			case PITCH_PID_ID:
+				updatePitchPid();
+				receivedCount = 0;
+				break;
+
+		}
+	}
+
+
+
+	/*gammalt
 	if(i == 0){
     //search for start token
 		while(hal.uartB->available()){
@@ -92,6 +138,7 @@ void userhook_50Hz()
 		//hal.console->printf("tmp height 2: %f\n", tmpHeight2);
 		//hal.console->printf("compass: %d\ncurrent height: %d\ncurrent height2: %f\nforward: %d\nrotate: %d\ntarget height: %d\n", compass, currentHeight, currentHeight2, forward, rotate, targetHeight);		
 	}
+	*/
    
 }
 #endif
@@ -203,7 +250,7 @@ void userhook_SuperSlowLoop()
 {
 
 	hal.console->printf("follow_thottle %d\n", follow_throttle);
-	hal.console->printf("follow_sonar_height %d\n", follow_int_variables[CURRENT_HEIGHT]);
+	//hal.console->printf("follow_sonar_height %d\n", follow_int_variables[CURRENT_HEIGHT]);
 	hal.console->printf("follow_yaw %d\n", follow_yaw);
 	hal.console->printf("throttle %d\n",  g.rc_3.control_in);
 	hal.console->printf("yaw %d\n",  g.rc_4.control_in);
@@ -286,34 +333,73 @@ void userhook_SuperSlowLoop()
 }
 #endif
 
-void readInt(char inputs[], int16_t *start, int index){
-	char str[8];
 
-	int i = 0;
-	while(inputs[*start] != '|' && inputs[*start] != ETX){
-		str[i] = inputs[*start];
-		*start = *start + 1;
-		i = i + 1;
+void updateTrackData(){
+	long index = 3;
+	follow_oculus_yaw = readInt(&index);
+	if(follow_oculus_yaw_offset == -1){
+		follow_oculus_yaw_offset = follow_oculus_yaw - ahrs.yaw_sensor;
 	}
-	str[i] = '\0';
-	*start = *start + 1;
-
-	follow_int_variables[index] = atoi(str);
-
+	follow_oculus_yaw = follow_oculus_yaw + follow_oculus_yaw_offset;
+	follow_roll_error = readInt(&index);
+	follow_sonar_height = readInt(&index);
+	follow_sonar_height = follow_sonar_height/(sqrt( sq( tan( radians( abs((float)ahrs.roll_sensor) / 100 ))) + sq( tan(radians(abs((float)ahrs.pitch_sensor) / 100))) + 1));
+	follow_distance_to_user = readInt(&index);
 }
 
-void readFloat(char inputs[], int16_t *start, int index){
-	char str[8];
+void updateSettings(){
+	long index = 3;
+	follow_target_height = readInt(&index);
+	follow_target_distance = readInt(&index);
+}
 
+void updateThrottlePid(){
+	long index = 3;
+	throttleP = readFloat(&index);
+	throttleI = readFloat(&index);
+	throttleD = readFloat(&index);
+}
+
+void updateYawPid(){
+	long index = 3;
+	yawP = readFloat(&index);
+	yawI = readFloat(&index);
+	yawD = readFloat(&index);
+}
+void updateRollPid(){
+	long index = 3;
+	rollP = readFloat(&index);
+	rollI = readFloat(&index);
+	rollD = readFloat(&index);
+}
+void updatePitchPid(){
+	long index = 3;
+	pitchP = readFloat(&index);
+	pitchI = readFloat(&index);
+	pitchD = readFloat(&index);
+}
+
+long readInt(long *index){
+	char str[10];
 	int i = 0;
-	while(inputs[*start] != '|' && inputs[*start] != ETX){
-		str[i] = inputs[*start];
-		*start = *start + 1;
-		i = i + 1;
+	while(received[*index] != DIVIDER){
+		str[i++] = received[*index];
+		*index = *index + 1;
 	}
 	str[i] = '\0';
-	*start = *start + 1;
-
-	follow_float_variables[index] = (float)atof(str);
-
+	*index = *index + 1;
+	return atoi(str);
 }
+
+float readFloat(long *index){
+	char str[15];
+	int i = 0;
+	while(received[*index] != DIVIDER){
+		str[i++] = received[*index];
+		*index = *index + 1;
+	}
+	str[i] = '\0';
+	*index = *index + 1;
+	return atof(str);
+}
+
