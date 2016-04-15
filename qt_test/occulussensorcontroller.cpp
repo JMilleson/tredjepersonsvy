@@ -74,9 +74,9 @@ QJsonObject OcculusSensorController::getSensorDataAsJSON()
 
     QJsonObject sensordata
     {
-        {"pitch", sensorData.pitch},
-        {"yaw", sensorData.yaw},
-        {"roll", sensorData.roll}
+        {"pitch", (int)sensorData.pitch},
+        {"yaw", (int)(sensorData.yaw * -100)},
+        {"roll", (int)sensorData.roll}
     };
 
     QJsonObject data = {
