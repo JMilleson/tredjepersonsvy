@@ -4,6 +4,7 @@ from ArdupilotComm import ArdupilotComm
 import json
 import sys
 import traceback
+import os
 
 
 class piApp(Observer):
@@ -20,15 +21,15 @@ class piApp(Observer):
             'pitch': "0",
             'yaw': "0"};
     def sendSensorData(self):
-        print("sending tracking data: ")
-        print(self.sensordata)
+        #print("sending tracking data: ")
+        #print(self.sensordata)
         self.aurdoComm.sendTrackData(
             self.sensordata['yaw'], 
             self.sensordata['uavangle'], 
             self.sensordata['height'], 
             self.sensordata['distance'] )
         
-    def notify(self,message,data):                  
+    def notify(self,message,data,sender):                  
         if message == "ReceivedTCP" :
             try:
                 s = data.decode(encoding='UTF-8')
@@ -48,13 +49,27 @@ class piApp(Observer):
                         elif key == "target":
                             self.aurdoComm.sendTargets(
                                 datadict["settings"]["target"]["targetHeight"],
-                                datadict["settings"]["target"]["targetHeight"])
+                                datadict["settings"]["target"]["targetDistance"])
                 if "sensordataoculus" in datadict :
                     self.sensordata["roll"]=str(datadict["sensordataoculus"]["roll"])
                     self.sensordata["pitch"]=str(datadict["sensordataoculus"]["pitch"])
                     self.sensordata["yaw"]=str(datadict["sensordataoculus"]["yaw"])
                     self.sendSensorData()
-                    
+                if "requestVideo" in datadict :
+                    videosettings = datadict["requestVideo"]
+                    videostring = "raspivid " + \
+                                  "-t " + str(videosettings["timeout"]) + \
+                                  " -w " +str( videosettings["width"]) + \
+                                  " -h " + str(videosettings["height"]) + \
+                                  " -fps 42" \
+                                  " -b " + str(videosettings["bitrate"]) + \
+                                  " -n -qp " + str(videosettings["QP"]) + \
+                                  " -o - | gst-launch-1.0 -v fdsrc ! h264parse ! rtph264pay" +\
+                                  " config-interval=1 pt=96" + \
+                                  " ! udpsink host="+sender+\
+                                  " port=" + str(videosettings["port"])
+                    print (videostring)
+                    os.system(videostring);
                     
             except Exception  as err:
                 print(traceback.format_exc())
