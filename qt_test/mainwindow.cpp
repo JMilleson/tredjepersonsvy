@@ -1,22 +1,37 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow){
     ui->setupUi(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(sendSensorData()));
 
+    connect(timer, SIGNAL(timeout()), this, SLOT(sendSensorData()));
     connect(client->getSocket(), SIGNAL(connected()),this, SLOT(connected()));
     connect(client->getSocket(), SIGNAL(disconnected()),this, SLOT(disconnected()));
     connect(client,SIGNAL(notifySentData(QString)),this,SLOT(sentData(QString)));
     connect(client,SIGNAL(notifyReceivedData(QString)),this,SLOT(receivedData(QString)));
+
+    this->on_initSerial_clicked();
+    this->on_sendSignal_clicked();
+
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::on_initSerial_clicked(){
+    if(serCom->init()){
+        ui->initSerial->setStyleSheet("background-color: green");
+        ui->initSerial->setText("initzialised");
+    } else {
+        ui->initSerial->setStyleSheet("background-color: red");
+        ui->initSerial->setText("failed");
+    }
+}
+
+void MainWindow::on_sendSignal_clicked(){
+    serCom->sendSignal();
 }
 
 void MainWindow::on_requestVideo_clicked(){

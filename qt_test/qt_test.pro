@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += network
+QT       += serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -18,14 +19,16 @@ SOURCES += main.cpp\
     tcpclient.cpp \
     occulussensorcontroller.cpp \
     occulussensocontrollersimulator.cpp \
-    connectworker.cpp
+    connectworker.cpp \
+    serialcommunication.cpp
 
 HEADERS  += mainwindow.h \
     tcpclient.h \
     occulussensorcontroller.h \
     occulussensocontrollersimulator.h \
     json.hpp \
-    connectworker.h
+    connectworker.h \
+    serialcommunication.h
 
 FORMS    += mainwindow.ui
 
@@ -36,4 +39,6 @@ DEPENDPATH += $$PWD/'../../../../../Program Files/OculusSDK/LibOVR/Lib/Windows/x
 
 INCLUDEPATH += $$PWD/'../../../../../Program Files/OculusSDK/LibOVR/Include'
 INCLUDEPATH += $$PWD/'../../../../../Program Files/OculusSDK/LibOVR/Include/extras'
+
+
 
