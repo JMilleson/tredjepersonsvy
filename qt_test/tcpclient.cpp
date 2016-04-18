@@ -92,15 +92,15 @@ void TcpClient::disconnected()
 
 void TcpClient::bytesWritten(qint64 bytes)
 {
-    qDebug() << bytes << " bytes written...";
+    //qDebug() << bytes << " bytes written...";
 }
 
 void TcpClient::readyRead()
 {
-    qDebug() << "reading...";
+    //qDebug() << "reading...";
 
     // read the data from the socket
     QString r = socket->readAll();
-    qDebug() << r;
+    //qDebug() << r;
     emit notifyReceivedData(r);
 }

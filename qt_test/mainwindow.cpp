@@ -11,7 +11,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(client,SIGNAL(notifyReceivedData(QString)),this,SLOT(receivedData(QString)));
 
     this->on_initSerial_clicked();
-    this->on_sendSignal_clicked();
+    //this->on_sendSignal_clicked();
+
+
+    connect(serCom,SIGNAL( serialDataConfirmed()),this,SLOT(receivedSerialConfirmation()));
 
 }
 
@@ -31,6 +34,7 @@ void MainWindow::on_initSerial_clicked(){
 }
 
 void MainWindow::on_sendSignal_clicked(){
+    this->serialTimer.restart();
     serCom->sendSignal();
 }
 
@@ -173,6 +177,16 @@ void MainWindow::sendSensorData()
     client->send(jsonDoc.toJson());
 }
 
+void MainWindow::receivedSerialConfirmation(){
+    qDebug() << this->serialTimer.nsecsElapsed();
+    QJsonObject sendData = {
+        {"sensorConfirmation", 0}
+    };
+
+    QJsonDocument data(sendData);
+    client->send(data.toJson());
+}
+
 void MainWindow::sentData(QString s){
     if(!ui->pauseSendLog->isChecked())
         ui->networkSendLog->setText(QTime::currentTime().toString()+"-> "+s+'\n'+ui->networkSendLog->toPlainText());
@@ -180,6 +194,11 @@ void MainWindow::sentData(QString s){
 
 
 void MainWindow::receivedData(QString s){
+    if(s.contains("pingme")){
+        this->serialTimer.start();
+        serCom->sendSignal();
+        return;
+    }
     if(!ui->pauseReceiveLog->isChecked())
         ui->networkReceiveLog->setText(QTime::currentTime().toString()+"-> "+s+'\n'+ui->networkReceiveLog->toPlainText());
 }

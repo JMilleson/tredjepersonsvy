@@ -8,6 +8,7 @@
 #include <QProcess>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QElapsedTimer>
 #include "tcpclient.h"
 #include "occulussensorcontroller.h"
 #include "serialcommunication.h"
@@ -50,6 +51,7 @@ private slots:
     void connectSocket();
     void sentData(QString s);
     void receivedData(QString s);
+    void receivedSerialConfirmation();
 
 private:
     Ui::MainWindow *ui;
@@ -59,6 +61,7 @@ private:
     SerialCommunication * serCom = new SerialCommunication();
     void stopSendData();
     void startSendData();
+    QElapsedTimer serialTimer ;
 };
 
 #endif // MAINWINDOW_H

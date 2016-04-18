@@ -16,8 +16,10 @@ private:
     QSerialPort * port = NULL;
 
 signals:
+    void serialDataConfirmed();
 
 public slots:
+    void SlotReadyRead();
 };
 
 #endif // SERIALCOMMUNICATION_H
