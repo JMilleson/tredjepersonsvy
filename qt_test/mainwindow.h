@@ -6,10 +6,12 @@
 #include <QTimer>
 #include <QTime>
 #include <QProcess>
-#include "tcpclient.h"
-#include "occulussensorcontroller.h"
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QElapsedTimer>
+#include "tcpclient.h"
+#include "occulussensorcontroller.h"
+#include "serialcommunication.h"
 
 namespace Ui {
 class MainWindow;
@@ -40,20 +42,26 @@ private slots:
 
     void on_viewVideo_clicked();
 
+    void on_initSerial_clicked();
+    void on_sendSignal_clicked();
+
     void sendSensorData();
     void connected();
     void disconnected();
     void connectSocket();
     void sentData(QString s);
     void receivedData(QString s);
+    void receivedSerialConfirmation();
 
 private:
     Ui::MainWindow *ui;
     TcpClient * client = new  TcpClient();
     OcculusSensorController oculus;
     QTimer *timer = new QTimer(this);
+    SerialCommunication * serCom = new SerialCommunication();
     void stopSendData();
     void startSendData();
+    QElapsedTimer serialTimer ;
 };
 
 #endif // MAINWINDOW_H

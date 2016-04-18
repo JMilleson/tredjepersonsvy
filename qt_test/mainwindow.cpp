@@ -1,22 +1,41 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow){
     ui->setupUi(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(sendSensorData()));
 
+    connect(timer, SIGNAL(timeout()), this, SLOT(sendSensorData()));
     connect(client->getSocket(), SIGNAL(connected()),this, SLOT(connected()));
     connect(client->getSocket(), SIGNAL(disconnected()),this, SLOT(disconnected()));
     connect(client,SIGNAL(notifySentData(QString)),this,SLOT(sentData(QString)));
     connect(client,SIGNAL(notifyReceivedData(QString)),this,SLOT(receivedData(QString)));
+
+    this->on_initSerial_clicked();
+    //this->on_sendSignal_clicked();
+
+
+    connect(serCom,SIGNAL( serialDataConfirmed()),this,SLOT(receivedSerialConfirmation()));
+
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::on_initSerial_clicked(){
+    if(serCom->init()){
+        ui->initSerial->setStyleSheet("background-color: green");
+        ui->initSerial->setText("initzialised");
+    } else {
+        ui->initSerial->setStyleSheet("background-color: red");
+        ui->initSerial->setText("failed");
+    }
+}
+
+void MainWindow::on_sendSignal_clicked(){
+    this->serialTimer.restart();
+    serCom->sendSignal();
 }
 
 void MainWindow::on_requestVideo_clicked(){
@@ -158,6 +177,16 @@ void MainWindow::sendSensorData()
     client->send(jsonDoc.toJson());
 }
 
+void MainWindow::receivedSerialConfirmation(){
+    qDebug() << this->serialTimer.nsecsElapsed();
+    QJsonObject sendData = {
+        {"sensorConfirmation", 0}
+    };
+
+    QJsonDocument data(sendData);
+    client->send(data.toJson());
+}
+
 void MainWindow::sentData(QString s){
     if(!ui->pauseSendLog->isChecked())
         ui->networkSendLog->setText(QTime::currentTime().toString()+"-> "+s+'\n'+ui->networkSendLog->toPlainText());
@@ -165,6 +194,11 @@ void MainWindow::sentData(QString s){
 
 
 void MainWindow::receivedData(QString s){
+    if(s.contains("pingme")){
+        this->serialTimer.start();
+        serCom->sendSignal();
+        return;
+    }
     if(!ui->pauseReceiveLog->isChecked())
         ui->networkReceiveLog->setText(QTime::currentTime().toString()+"-> "+s+'\n'+ui->networkReceiveLog->toPlainText());
 }
