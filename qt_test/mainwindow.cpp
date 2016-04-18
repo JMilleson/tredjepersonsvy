@@ -55,10 +55,19 @@ void MainWindow::on_requestVideo_clicked(){
     client->send(data.toJson());
 }
 
+void MainWindow::on_stopVideo_clicked(){
+    QJsonObject stopVideo = {
+        {"abortVideo", ""}
+    };
+
+    QJsonDocument data(stopVideo);
+    client->send(data.toJson());
+}
+
 void MainWindow::on_viewVideo_clicked(){
-    qDebug() << "attempting to open sink";
-    QProcess process;
-    process.start("gst-launch-1.0", QStringList() << "udpsrc port=1337 ! application/x-rtp,encoding-name=H264,payload=96 ! rtph264depay ! avdec_h264 ! videoconvert ! autovideosink");
+    //qDebug() << "attempting to open sink at: " << QDir::currentPath() << "  "<< qApp->applicationDirPath();
+    videoProcess.workingDirectory(QDir::currentPath());
+    videoProcess.start("cmd.exe" , QStringList() << "\\test.bat");
 }
 
 

@@ -42,6 +42,8 @@ private slots:
 
     void on_viewVideo_clicked();
 
+    void on_stopVideo_clicked();
+
     void on_initSerial_clicked();
     void on_sendSignal_clicked();
 
@@ -61,6 +63,8 @@ private:
     SerialCommunication * serCom = new SerialCommunication();
     void stopSendData();
     void startSendData();
+
+    QProcess videoProcess;
     QElapsedTimer serialTimer ;
 };
 
