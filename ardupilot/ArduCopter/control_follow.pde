@@ -6,6 +6,7 @@
 int16_t previousHeightError = 0;
 int16_t previousYawError = 0;
 int16_t previousPitchError = 0;
+int16_t previousRollError = 0;
 uint32_t lastTime = 0;
 
 // follow_init - initialise follow mode
@@ -31,7 +32,7 @@ static bool follow_init(bool ignore_checks)
 // will be called at 100hz or more
 static void follow_run()
 {
-    int16_t height_error, yaw_error, pitch_error;
+    int16_t height_error, yaw_error, pitch_error, roll_error;
     int16_t target_roll, target_pitch;
     float target_yaw_rate;
 
@@ -63,12 +64,12 @@ static void follow_run()
     //   attitude_control.set_throttle_out(desired throttle, true);
 
     
-    if(altitude_updated){
+    if(tracking_updated){
         //update throttle
         //temporary
-        follow_target_height = 200;
+        //follow_target_height = 200;
 
-        altitude_updated = 0;
+        tracking_updated = 0;
         uint32_t currentTime = millis();
         uint16_t dt = currentTime - lastTime;
         height_error =  follow_target_height - follow_sonar_height;
@@ -78,24 +79,42 @@ static void follow_run()
         previousHeightError = height_error;
 
 
-        //update yaw
-        yaw_error = follow_oculus_yaw - ahrs.yaw_sensor;
+        //update yaw with oculus
+        /*
+        yaw_error = follow_oculus_yaw - wrap_180_cd(ahrs.yaw_sensor);
         yawIntegral += yaw_error * dt;
         yawDerivative = ((float)(yaw_error - previousYawError)) / dt;
         follow_yaw = (int16_t)constrain_float(0 + yawP * yaw_error + yawI * yawIntegral + yawD * yawDerivative, -4500, 4500);
         previousYawError = yaw_error;
+        */
 
-        //update roll
-        
+        //update yaw with ultrasonic tracking
+        /*
+        yaw_error = follow_centerline_error;
+        yawIntegral += yaw_error * dt;
+        yawDerivative = ((float)(yaw_error - previousYawError)) / dt;
+        follow_yaw = (int16_t)constrain_float(0 + yawP * yaw_error + yawI * yawIntegral + yawD * yawDerivative, -4500, 4500);
+        previousYawError = yaw_error;
+        */
 
+        //update roll with oculus yaw
+        /*
+        roll_error = follow_oculus_yaw - wrap_180_cd(ahrs.yaw_sensor);
+        rollIntegral += roll_error * dt;
+        rollDerivative = ((float)(roll_error - previousRollError)) / dt;
+        follow_roll = (int16_t)constrain_float(0 + rollP * roll_error + rollI * rollIntegral + rollD * rollDerivative, -4500, 4500);
+        previousRollError = roll_error;
+        */
 
-        //update pitch
-        pitch_error = follow_target_distance - follow_distance_to_user;
+        //update pitch with ultrasonic distance
+        /*
+        //pitch_error = follow_target_distance - follow_distance_to_user;
+        pitch_error = follow_distance_to_user;
         pitchIntegral += pitch_error * dt;
         pitchDerivative = ((float)(pitch_error - previousPitchError)) / dt;
         follow_pitch = (int16_t)constrain_float(0 + pitchP * pitch_error + pitchI * pitchIntegral + pitchD * pitchDerivative, -4500, 4500);
         previousPitchError = pitch_error;
-
+        */
 
         lastTime = currentTime;
     }
@@ -103,6 +122,7 @@ static void follow_run()
 
     target_yaw_rate = get_pilot_desired_yaw_rate(g.rc_4.control_in);
     get_pilot_desired_lean_angles(g.rc_1.control_in, g.rc_2.control_in, target_roll, target_pitch);
+//enable full tracking    
 //    target_yaw_rate = get_pilot_desired_yaw_rate(follow_yaw);
 //    get_pilot_desired_lean_angles(follow_roll, follow_pitch, target_roll, target_pitch);
     attitude_control.angle_ef_roll_pitch_rate_ef_yaw_smooth(target_roll, target_pitch, target_yaw_rate, get_smoothing_gain());
