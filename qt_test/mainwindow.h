@@ -44,28 +44,34 @@ private slots:
 
     void on_stopVideo_clicked();
 
-    void on_initSerial_clicked();
-    void on_sendSignal_clicked();
+    //void on_initSerial_clicked();
+    //void on_sendSignal_clicked();
+
+    void on_requestSensorData_clicked();
 
     void sendSensorData();
+    void requestSensorData();
     void connected();
     void disconnected();
     void connectSocket();
     void sentData(QString s);
     void receivedData(QString s);
-    void receivedSerialConfirmation();
+    //void receivedSerialConfirmation();
 
 private:
     Ui::MainWindow *ui;
     TcpClient * client = new  TcpClient();
     OcculusSensorController oculus;
     QTimer *timer = new QTimer(this);
+    QTimer * requestSensorDataTimer = new QTimer(this);
     SerialCommunication * serCom = new SerialCommunication();
     void stopSendData();
     void startSendData();
+    void startRequestData();
+    void stopRequestData();
 
     QProcess videoProcess;
-    QElapsedTimer serialTimer ;
+    //QElapsedTimer serialTimer ;
 };
 
 #endif // MAINWINDOW_H

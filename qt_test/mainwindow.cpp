@@ -5,16 +5,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
 
     connect(timer, SIGNAL(timeout()), this, SLOT(sendSensorData()));
+    connect(this->requestSensorDataTimer, SIGNAL(timeout()), this, SLOT(requestSensorData()));
     connect(client->getSocket(), SIGNAL(connected()),this, SLOT(connected()));
     connect(client->getSocket(), SIGNAL(disconnected()),this, SLOT(disconnected()));
     connect(client,SIGNAL(notifySentData(QString)),this,SLOT(sentData(QString)));
     connect(client,SIGNAL(notifyReceivedData(QString)),this,SLOT(receivedData(QString)));
 
-    this->on_initSerial_clicked();
+    //this->on_initSerial_clicked();
     //this->on_sendSignal_clicked();
-
-
-    connect(serCom,SIGNAL( serialDataConfirmed()),this,SLOT(receivedSerialConfirmation()));
+    //connect(serCom,SIGNAL( serialDataConfirmed()),this,SLOT(receivedSerialConfirmation()));
 
 }
 
@@ -23,7 +22,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_initSerial_clicked(){
+
+/*void MainWindow::on_initSerial_clicked(){
     if(serCom->init()){
         ui->initSerial->setStyleSheet("background-color: green");
         ui->initSerial->setText("initzialised");
@@ -31,12 +31,30 @@ void MainWindow::on_initSerial_clicked(){
         ui->initSerial->setStyleSheet("background-color: red");
         ui->initSerial->setText("failed");
     }
-}
+}*/
 
-void MainWindow::on_sendSignal_clicked(){
+/*void MainWindow::on_sendSignal_clicked(){
     this->serialTimer.restart();
     serCom->sendSignal();
+}*/
+
+void MainWindow::requestSensorData(){
+    QJsonObject requestSensorData = {
+        {"requestSensorData", ""}
+    };
+    QJsonDocument data(requestSensorData);
+    client->send(data.toJson());
 }
+
+void MainWindow::on_requestSensorData_clicked(){
+    if(!this->requestSensorDataTimer->isActive())
+        if(client->isConnected())
+            this->startRequestData();
+        else qDebug() << "not connected" ;
+    else
+        this->stopRequestData();
+}
+
 
 void MainWindow::on_requestVideo_clicked(){
     QJsonObject videoOptions ={
@@ -65,8 +83,8 @@ void MainWindow::on_stopVideo_clicked(){
 }
 
 void MainWindow::on_viewVideo_clicked(){
-    //qDebug() << "attempting to open sink at: " << QDir::currentPath() << "  "<< qApp->applicationDirPath();
-    videoProcess.workingDirectory(QDir::currentPath());
+    //qDebug() << "attempting to open sink at: " << QDir::currentPath() << "  "<< qApp->applicationDirPath()
+    videoProcess.setWorkingDirectory(QDir::currentPath());
     videoProcess.start("cmd.exe" , QStringList() << "\\test.bat");
 }
 
@@ -186,7 +204,7 @@ void MainWindow::sendSensorData()
     client->send(jsonDoc.toJson());
 }
 
-void MainWindow::receivedSerialConfirmation(){
+/*void MainWindow::receivedSerialConfirmation(){
     qDebug() << this->serialTimer.nsecsElapsed();
     QJsonObject sendData = {
         {"sensorConfirmation", 0}
@@ -194,19 +212,25 @@ void MainWindow::receivedSerialConfirmation(){
 
     QJsonDocument data(sendData);
     client->send(data.toJson());
-}
+}*/
 
 void MainWindow::sentData(QString s){
     if(!ui->pauseSendLog->isChecked())
         ui->networkSendLog->setText(QTime::currentTime().toString()+"-> "+s+'\n'+ui->networkSendLog->toPlainText());
 }
 
-
 void MainWindow::receivedData(QString s){
-    if(s.contains("pingme")){
+    /*if(s.contains("pingme")){
         this->serialTimer.start();
         serCom->sendSignal();
         return;
+    }*/
+    try {
+        QJsonDocument d = QJsonDocument::fromJson(s.toUtf8());
+        if(d.object().contains("sensorData"))
+            ui->sensorDataPi->setText(s);
+    } catch (...){
+        qDebug() << "error while parsing json ....";
     }
     if(!ui->pauseReceiveLog->isChecked())
         ui->networkReceiveLog->setText(QTime::currentTime().toString()+"-> "+s+'\n'+ui->networkReceiveLog->toPlainText());
@@ -250,4 +274,20 @@ void MainWindow::startSendData()
     ui->pushSendSensorData->setText("Stop sending data");
     qDebug() << "Sending sensor data with the interval of " << ui->interval->text();
     timer->start(ui->interval->text().toInt());
+}
+
+void MainWindow::stopRequestData()
+{
+    ui->pushSendSensorData->setStyleSheet("background-color: grey");
+    ui->pushSendSensorData->setText("Request data");
+    qDebug() << "Stop sending sensor data";
+    this->requestSensorDataTimer->stop();
+}
+
+void MainWindow::startRequestData()
+{
+    ui->pushSendSensorData->setStyleSheet("background-color: green");
+    ui->pushSendSensorData->setText("Stop request");
+    qDebug() << "Requesting sensor data with the interval of " << ui->requestSensorDataIntervall->text();
+    this->requestSensorDataTimer->start(ui->requestSensorDataIntervall->text().toInt());
 }
