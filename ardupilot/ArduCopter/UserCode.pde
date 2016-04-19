@@ -78,6 +78,7 @@ void userhook_50Hz()
 				break;
 
 		}
+		tracking_updated = 1;
 	}
 
 
@@ -254,7 +255,7 @@ void userhook_SuperSlowLoop()
 	hal.console->printf("throttle %d\n",  g.rc_3.control_in);
 	hal.console->printf("yaw %d\n",  g.rc_4.control_in);
 	hal.console->printf("integral %d\n",  throttleIntegral);
-*/
+
 	hal.console->printf("target height %d\n",  follow_target_height);
 	hal.console->printf("current height %d\n",  follow_sonar_height);
 	hal.console->printf("oculus yaw %d\n",  follow_oculus_yaw);
@@ -267,7 +268,29 @@ void userhook_SuperSlowLoop()
 	hal.console->printf("throttle d %f\n",  throttleD);
 
 	hal.console->printf("yaw offset %d\n",  follow_oculus_yaw_offset);
+	hal.console->printf("oculus yaw %d\n",  follow_oculus_yaw);
+	hal.console->printf("pilot yaw 1 %d\n",  ahrs.yaw_sensor);
+	hal.console->printf("pilot yaw 2 %d\n",   wrap_180_cd(ahrs.yaw_sensor));
+*/
 
+	//throttle prints
+	hal.console->printf("thottle %d\n", follow_throttle);
+	hal.console->printf("target height %d\n",  follow_target_height);
+	hal.console->printf("current height %d\n",  follow_sonar_height);
+	hal.console->printf("throttle p %f\n",  throttleP);
+	hal.console->printf("throttle i %f\n",  throttleI);
+	hal.console->printf("throttle d %f\n",  throttleD);
+
+	//yaw prints
+	/*
+	hal.console->printf("yaw %d\n", follow_yaw);
+	hal.console->printf("yaw offset %d\n",  follow_oculus_yaw_offset);
+	hal.console->printf("oculus yaw %d\n",  follow_oculus_yaw);
+	hal.console->printf("pilot yaw %d\n",  wrap_180_cd(ahrs.yaw_sensor));
+	hal.console->printf("yaw p %f\n",  yawP);
+	hal.console->printf("yaw i %f\n",  yawI);
+	hal.console->printf("yaw d %f\n",  yawD);	
+	*/
 //	received[receivedCount] = '\0';
 //	hal.console->printf("received %s\n",  received);
 
@@ -353,10 +376,10 @@ void updateTrackData(){
 	long index = 3;
 	follow_oculus_yaw = readInt(&index);
 	if(follow_oculus_yaw_offset == -1){
-		follow_oculus_yaw_offset = follow_oculus_yaw - ahrs.yaw_sensor;
+		follow_oculus_yaw_offset = follow_oculus_yaw - wrap_180_cd(ahrs.yaw_sensor);
 	}
 	follow_oculus_yaw = follow_oculus_yaw - follow_oculus_yaw_offset;
-	follow_roll_error = readInt(&index);
+	follow_centerline_error = readInt(&index);
 	follow_sonar_height = readInt(&index);
 	follow_sonar_height = follow_sonar_height/(sqrt( sq( tan( radians( abs((float)ahrs.roll_sensor) / 100 ))) + sq( tan(radians(abs((float)ahrs.pitch_sensor) / 100))) + 1));
 	follow_distance_to_user = readInt(&index);
