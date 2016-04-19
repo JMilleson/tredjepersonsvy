@@ -6,4 +6,4 @@ while true:
 
     x.sendTrackData(10,11,12,13)
 
-    x.sendPidSettings(tr0ackDataid,1.31,9919931.6546465,5345.11)
+    x.sendPidSettings(trackDataid,1.31,9919931.6546465,5345.11)
