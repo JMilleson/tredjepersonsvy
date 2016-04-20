@@ -9,6 +9,7 @@
 
 void setup() {
   delay(2000);
+  
   Serial.begin(57600);
  // initialize i2c as slave
   Wire.begin(SLAVE_ADDRESS);
@@ -18,7 +19,15 @@ void setup() {
 // Wire.onRequest(sendData);
 }
 
+unsigned char output[256];
+long start = 0;
+long end = 0;
+
 void loop() {
+	while(start != end){
+		Serial.write(output[start]);
+		start = (start + 1) % 256;
+	}
 }
 
 
@@ -27,8 +36,9 @@ void loop() {
 void receiveDataFromPi(int byteCount){
   
   while(Wire.available()){
-    
-    Serial.write(Wire.read());
+    output[end] = Wire.read();
+    end = (end + 1) % 256;
+    //Serial.write(Wire.read());
   }
 
 }
