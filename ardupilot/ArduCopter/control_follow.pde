@@ -3,6 +3,7 @@
 /*
  * control_follow.cpp - init and run calls for follow flight mode
  */
+
 int16_t previousHeightError = 0;
 int16_t previousYawError = 0;
 int16_t previousPitchError = 0;
@@ -21,6 +22,19 @@ static bool follow_init(bool ignore_checks)
 
     //g.rc_3.control_in
     //values between 0 and 1000
+
+    previousHeightError = 0;
+    previousYawError = 0;
+    previousPitchError = 0;
+    previousRollError = 0;
+    throttleIntegral = 0;
+    throttleDerivative = 0;
+    yawIntegral = 0;
+    yawDerivative = 0;
+    rollIntegral = 0;
+    rollDerivative = 0;
+    pitchIntegral = 0;
+    pitchDerivative = 0;
 
     lastTime = millis();
 
@@ -71,11 +85,13 @@ static void follow_run()
 
         tracking_updated = 0;
         uint32_t currentTime = millis();
-        uint16_t dt = currentTime - lastTime;
+        int32_t dt = currentTime - lastTime;
         height_error =  follow_target_height - follow_sonar_height;
         throttleIntegral += height_error * dt;
+        throttleIntegral = constrain_int32(throttleIntegral, -1500000, 1500000);
         throttleDerivative = ((float)(height_error - previousHeightError)) / dt;
-        follow_throttle = (int16_t)constrain_float(600 + throttleP * height_error + throttleI * throttleIntegral + throttleD * throttleDerivative, 0, 1000);
+        throttleDerivative = constrain_int32(throttleDerivative, -1000000, 1000000);
+        follow_throttle = (int16_t)constrain_float(follow_target_distance + throttleP * height_error + throttleI * throttleIntegral + throttleD * throttleDerivative, 0, 1000);
         previousHeightError = height_error;
 
 

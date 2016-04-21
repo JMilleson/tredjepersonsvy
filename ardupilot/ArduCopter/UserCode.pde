@@ -19,11 +19,32 @@ void userhook_init()
 }
 #endif
 
+	int16_t height_error_T = 0;
+	int16_t previousHeightError_T = 0;
+	uint32_t lastTime_T = 0;
+    int32_t dt_T = 0;
 #ifdef USERHOOK_FASTLOOP
 void userhook_FastLoop()
 {
     // put your 100Hz code here
-}
+    if(tracking_updated){
+        //update throttle
+        //temporary
+        //follow_target_height = 200;
+
+        tracking_updated = 0;
+        uint32_t currentTime = millis();
+        dt_T = currentTime - lastTime_T;
+        height_error_T =  follow_target_height - follow_sonar_height;
+        throttleIntegral = throttleIntegral + height_error_T * dt_T;
+        throttleIntegral = constrain_int32(throttleIntegral, -1000000, 1000000);
+        throttleDerivative = ((float)(height_error_T - previousHeightError_T)) / dt_T;
+        throttleDerivative = constrain_int32(throttleDerivative, -1000000, 1000000);
+        follow_throttle = (int16_t)constrain_float(follow_target_distance + throttleP * height_error_T + throttleI * throttleIntegral + throttleD * throttleDerivative, 0, 1000);
+        previousHeightError_T = height_error_T;
+
+        lastTime_T = currentTime;
+	}}
 #endif
 
 //uint16_t i = 0;
@@ -144,103 +165,20 @@ void userhook_50Hz()
 }
 #endif
 
+
+
 #ifdef USERHOOK_MEDIUMLOOP
 void userhook_MediumLoop()
 {
     // put your 10Hz code here
+
+
 }
 #endif
 
 #ifdef USERHOOK_SLOWLOOP
 void userhook_SlowLoop()
 {
-    // put your 3.3Hz code here
-	if(i == 0){
-    //search for start token
-		while(hal.uartB->available()){
-			if(hal.uartB->read() == STX){
-				values[i] = STX;
-				i = 1;
-				break;
-			} 
-		}
-	}
-	while(i > 0 && i < 20 && hal.uartB->available()){
-		values[i] = hal.uartB->read();
-		i = i + 1; 
-	}
-	if(i == 20){
-		while(hal.uartB->available()){
-			if(hal.uartB->read() == ETX){
-				values[i] = ETX;
-				i = 21;
-				break;
-			}     
-		}
-	}
-	
-	if(i == 21){
-		values[21] = '\0';
-		//gcs_send_text_fmt(PSTR("values: %s"), values);
-		//gcs_send_text_fmt(PSTR("value 1: %d\n value 4: %d"), values[1], values[4]);
-	    hal.console->printf("values: %s\n", values);		
-		if(values[0] == STX && values[20] == ETX){
-			int16_t compass = values[1] - '0';
-			compass *= 10;
-			compass += values[2] - '0';
-			compass *= 10;
-			compass += values[3] - '0';
-			compass -= 200;
-			int16_t currentHeight = values[4] - '0';
-			currentHeight *= 10;
-			currentHeight += values[5] - '0';
-			currentHeight *= 10;    
-			currentHeight += values[6] - '0';
-			currentHeight *= 10;    
-			currentHeight += values[7] - '0';
-			int16_t forward = values[8] - '0';
-			forward *= 10;
-			forward += values[9] - '0';
-			forward *= 10;
-			forward += values[10] - '0';
-			forward *= 10;
-			forward += values[11] - '0';
-			int16_t rotate = values[12] - '0';
-			rotate *= 10;
-			rotate += values[13] - '0';
-			rotate *= 10;
-			rotate += values[14] - '0';
-			rotate *= 10;
-			rotate += values[15] - '0';
-			int16_t targetHeight = values[16] - '0';
-			targetHeight *= 10;
-			targetHeight += values[17] - '0';
-			targetHeight *= 10;
-			targetHeight += values[18] - '0';
-			targetHeight *= 10;
-			targetHeight += values[19] - '0';
-			i = 0;
-
-			if(follow_oculus_yaw_offset == -1){
-				follow_oculus_yaw_offset = compass - ahrs.yaw_sensor;
-			}
-
-			float currentHeight2 = currentHeight/(sqrt( sq( tan( radians( abs((float)ahrs.roll_sensor) / 100 ))) + sq( tan(radians(abs((float)ahrs.pitch_sensor) / 100))) + 1));
-			follow_sonar_height = currentHeight2;
-			follow_target_height = targetHeight;
-			follow_oculus_yaw = compass + follow_oculus_yaw_offset;
-			//float tmpHeight1 = 100/(sqrt( sq( tan( radians( abs((float)4500) / 100 ))) + sq( tan(radians(abs((float)0) / 100))) + 1));
-			//float tmpHeight2 = 100/(sqrt( sq( tan( radians( abs((float)2500) / 100 ))) + sq( tan(radians(abs((float)2500) / 100))) + 1));
-			//gcs_send_text_fmt(PSTR("compass: %d\ncurrent height: %d\nforward: %d\nrotate: %d\ntarget height: %d"), compass, currentHeight, forward, rotate, targetHeight);
-			//hal.console->printf("tmp height 1: %f\n", tmpHeight1);
-			//hal.console->printf("tmp height 2: %f\n", tmpHeight2);
-			hal.console->printf("compass: %d\ncurrent height: %d\ncurrent height2: %f\nforward: %d\nrotate: %d\ntarget height: %d\n", compass, currentHeight, currentHeight2, forward, rotate, targetHeight);		
-
-		}else{
-			hal.console->printf("wrong start or end value");
-			//gcs_send_text_fmt(PSTR("wrong start or end value"));
-		}
-	}
     
 }
 #endif
@@ -275,11 +213,15 @@ void userhook_SuperSlowLoop()
 
 	//throttle prints
 	hal.console->printf("thottle %d\n", follow_throttle);
-	hal.console->printf("target height %d\n",  follow_target_height);
+//	hal.console->printf("target height %d\n",  follow_target_height);
+//	hal.console->printf("target distance %d\n",  follow_target_distance);
 	hal.console->printf("current height %d\n",  follow_sonar_height);
+	hal.console->printf("derivative %ld\n",  throttleDerivative);
+	hal.console->printf("integral %ld\n",  throttleIntegral);
 	hal.console->printf("throttle p %f\n",  throttleP);
 	hal.console->printf("throttle i %f\n",  throttleI);
 	hal.console->printf("throttle d %f\n",  throttleD);
+	hal.console->printf("jacob throttle %d\n",  g.rc_3.control_in);
 
 	//yaw prints
 	/*
