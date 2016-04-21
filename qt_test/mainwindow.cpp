@@ -39,11 +39,15 @@ MainWindow::~MainWindow()
 }*/
 
 void MainWindow::requestSensorData(){
-    QJsonObject requestSensorData = {
-        {"requestSensorData", ""}
-    };
-    QJsonDocument data(requestSensorData);
-    client->send(data.toJson());
+    if(client->isConnected()){
+        QJsonObject requestSensorData = {
+            {"requestSensorData", ""}
+        };
+        QJsonDocument data(requestSensorData);
+        client->send(data.toJson());
+    } else {
+        this->stopRequestData();
+    }
 }
 
 void MainWindow::on_requestSensorData_clicked(){
@@ -227,8 +231,12 @@ void MainWindow::receivedData(QString s){
     }*/
     try {
         QJsonDocument d = QJsonDocument::fromJson(s.toUtf8());
-        if(d.object().contains("sensorData"))
-            ui->sensorDataPi->setText(s);
+        //qDebug() << d;
+        //qDebug() << d.object() << d.object().contains() << d.object().keys();
+        //if(d.object().contains("sensordata")){
+        //    qDebug() << "sensor data rec.: " << s;
+        ui->sensorDataPi->setText(d.toJson(QJsonDocument::Indented));
+        //}
     } catch (...){
         qDebug() << "error while parsing json ....";
     }
@@ -278,16 +286,16 @@ void MainWindow::startSendData()
 
 void MainWindow::stopRequestData()
 {
-    ui->pushSendSensorData->setStyleSheet("background-color: grey");
-    ui->pushSendSensorData->setText("Request data");
+    ui->requestSensorData->setStyleSheet("background-color: grey");
+    ui->requestSensorData->setText("Request data");
     qDebug() << "Stop sending sensor data";
     this->requestSensorDataTimer->stop();
 }
 
 void MainWindow::startRequestData()
 {
-    ui->pushSendSensorData->setStyleSheet("background-color: green");
-    ui->pushSendSensorData->setText("Stop request");
+    ui->requestSensorData->setStyleSheet("background-color: green");
+    ui->requestSensorData->setText("Stop request");
     qDebug() << "Requesting sensor data with the interval of " << ui->requestSensorDataIntervall->text();
     this->requestSensorDataTimer->start(ui->requestSensorDataIntervall->text().toInt());
 }
