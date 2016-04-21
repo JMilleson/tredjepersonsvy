@@ -1,6 +1,5 @@
 from Pingers import *
 x = Pingers()
+x.setup()
 while True: 
-    x.getRemotePing()
-    x.getHeight()
-    time.sleep(0.04)
+        x.getFixedRemote()

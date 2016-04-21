@@ -12,7 +12,8 @@
 
 
 
-import serial
+import smbus
+address = 0x04
 startChar = '\002'
 endChar = '\003'
 divChar = '|'
@@ -28,11 +29,15 @@ targetValuesid = '6'
 class ArdupilotComm:
         
     """For communicating with ardupilot by USB"""
-    ser = serial.Serial('/dev/ttyAMA0', 57600, timeout=1)
-
-    if not ser.isOpen():
-        ser.open()
+    bus = smbus.SMBus(1)
     
+    trackDataid = '1'
+    throttlePidid = '2'
+    yawPidid = '3'
+    rollPidid = '4'
+    pitchPidid = '5'
+    targetValuesid = '6'
+
 
     def __init__(self):
             self.Sending = False #A variable to make sure one is not trying to send different data at the same time. Not sure if needed
@@ -76,17 +81,17 @@ class ArdupilotComm:
             self.sendChar(endChar)
             self.Sending = False
         else:
-            print("bus busy, skipped sending Track data")
+            print("i2c bus busy, skipped sending Track data")
 
 
     def sendString(self,str):
         #print(str)
-        
-        self.ser.write(bytes(str,'utf8'))
+        for c in str:
+            self.bus.write_byte(address,int.from_bytes(bytes(c,'utf-8'),'little'))
             
     def sendChar(self,charaa):
         #print(charaa)
-        self.ser.write(bytes(charaa,'utf8'))
+        self.bus.write_byte(address,int.from_bytes(bytes(charaa,'utf-8'),'little'))
 
     def sendTargets(self,targetHeight,targetDistance):
         self.Sending = True
