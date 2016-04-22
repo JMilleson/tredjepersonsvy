@@ -34,6 +34,8 @@ private slots:
 
     void on_pushSendSensorData_clicked();
 
+    void on_pushCalibrateSensors_clicked();
+
     void on_send_clicked();
 
     void on_pushSendSettings_clicked();
@@ -56,6 +58,7 @@ private slots:
     void connectSocket();
     void sentData(QString s);
     void receivedData(QString s);
+    void enableSendSensors();
     //void receivedSerialConfirmation();
 
 private:

@@ -360,7 +360,7 @@
        <x>10</x>
        <y>80</y>
        <width>341</width>
-       <height>151</height>
+       <height>131</height>
       </rect>
      </property>
      <property name="readOnly">
@@ -381,6 +381,9 @@
      </property>
     </widget>
     <widget class="QLineEdit" name="interval">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>120</x>
@@ -394,6 +397,9 @@
      </property>
     </widget>
     <widget class="QPushButton" name="pushSendSensorData">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>240</x>
@@ -404,6 +410,19 @@
      </property>
      <property name="text">
       <string>Send sensor data</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushCalibrateSensors">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>220</y>
+       <width>341</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>CALIBRATE</string>
      </property>
     </widget>
    </widget>
@@ -838,6 +857,9 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
     <widget class="QLineEdit" name="requestSensorDataIntervall">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>130</x>

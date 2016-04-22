@@ -51,12 +51,19 @@ void MainWindow::requestSensorData(){
 }
 
 void MainWindow::on_requestSensorData_clicked(){
-    if(!this->requestSensorDataTimer->isActive())
+    if(!ui->requestSensorData->isChecked()){
+        ui->requestSensorData->setChecked(true);
+    } else {
+        ui->requestSensorData->setChecked(false);
+    }
+
+    requestSensorData();
+    /*if(!this->requestSensorDataTimer->isActive())
         if(client->isConnected())
             this->startRequestData();
         else qDebug() << "not connected" ;
     else
-        this->stopRequestData();
+        this->stopRequestData();*/
 }
 
 
@@ -139,6 +146,24 @@ void MainWindow::on_pushSendSettings_clicked(){
     client->send(data.toJson());
 
     /**/
+}
+
+void MainWindow::on_pushCalibrateSensors_clicked(){
+    QJsonObject sendData = {
+        {"calibrateSensors", ""}
+    };
+
+    QJsonDocument data(sendData);
+    client->send(data.toJson());
+
+    QTimer::singleShot(2000, this, SLOT(enableSendSensors()));
+}
+
+void MainWindow::enableSendSensors(){
+    ui->pushSendSensorData->setEnabled(true);
+
+    ui->pushCalibrateSensors->setText("Probably calibrated......");
+    ui->pushCalibrateSensors->setStyleSheet("background-color: yellow");
 }
 
 void MainWindow::on_pushGetSensorData_clicked(){
@@ -236,6 +261,7 @@ void MainWindow::receivedData(QString s){
         //if(d.object().contains("sensordata")){
         //    qDebug() << "sensor data rec.: " << s;
         ui->sensorDataPi->setText(d.toJson(QJsonDocument::Indented));
+        return;
         //}
     } catch (...){
         qDebug() << "error while parsing json ....";
