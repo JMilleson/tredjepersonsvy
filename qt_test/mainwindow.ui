@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1277</width>
-    <height>600</height>
+    <width>1280</width>
+    <height>1172</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -62,7 +62,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>100</string>
+      <string>150</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="targetDistance">
@@ -88,7 +88,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>1</string>
+      <string>0.65</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="trottleI">
@@ -101,7 +101,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>1</string>
+      <string>0.00004</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="trottleD">
@@ -114,7 +114,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>1</string>
+      <string>55</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="yawP">
@@ -127,7 +127,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>1</string>
+      <string>100</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="yawI">
@@ -140,7 +140,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>1</string>
+      <string>0</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="yawD">
@@ -153,7 +153,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>1</string>
+      <string>0</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="rollP">
@@ -899,6 +899,78 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </widget>
+   <widget class="QGroupBox" name="groupBox_5">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>560</y>
+      <width>1261</width>
+      <height>561</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Graphs</string>
+    </property>
+    <widget class="QLabel" name="label_18">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>20</y>
+       <width>141</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Refresh-rate:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="refreshRate1">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>20</y>
+       <width>113</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>10</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushGraph1">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>20</y>
+       <width>161</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Graph shit yo</string>
+     </property>
+    </widget>
+    <widget class="QCustomPlot" name="graph1" native="true">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>50</y>
+       <width>641</width>
+       <height>501</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QCustomPlot" name="graph2" native="true">
+     <property name="geometry">
+      <rect>
+       <x>660</x>
+       <y>50</y>
+       <width>591</width>
+       <height>501</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -914,13 +986,21 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1277</width>
+     <width>1280</width>
      <height>17</height>
     </rect>
    </property>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
