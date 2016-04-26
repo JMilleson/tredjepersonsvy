@@ -14,13 +14,20 @@ void userhook_init()
 	g.flight_mode6 = LAND;
 
 	gps.lock_port(0, 1);
-	hal.uartB->begin(57600, 256, 16);
+//	hal.uartB->begin(57600, 256, 16);
+	hal.uartB->begin(115200, 256, 16);
 
 }
 #endif
 
-	int16_t height_error_T = 0;
-	int16_t previousHeightError_T = 0;
+//	int16_t height_error_T = 0;
+//	int16_t previousHeightError_T = 0;
+//	int16_t roll_error_T = 0;
+//	int16_t previousRollError_T = 0;
+//	int16_t pitch_error_T = 0;
+//	int16_t previousPitchError_T = 0;
+	int16_t yaw_error_T = 0;
+	int16_t previousYawError_T = 0;
 	uint32_t lastTime_T = 0;
     int32_t dt_T = 0;
 #ifdef USERHOOK_FASTLOOP
@@ -32,6 +39,38 @@ void userhook_FastLoop()
         //temporary
         //follow_target_height = 200;
 
+        //update roll with oculus yaw        
+        tracking_updated = 0;
+        uint32_t currentTime = millis();
+        dt_T = currentTime - lastTime_T;
+        /*
+        roll_error_T = follow_oculus_yaw - wrap_180_cd(ahrs.yaw_sensor);
+        if(roll_error_T > 18000){
+        	roll_error_T = roll_error_T - 36000;
+        }else if(roll_error_T < -18000){
+        	roll_error_T = 36000 + roll_error_T;
+        }
+        rollIntegral += roll_error_T * dt_T;
+        rollDerivative = ((float)(roll_error_T - previousRollError_T)) / dt_T;
+        follow_roll = (int16_t)constrain_float(0 + -1*rollP * roll_error_T + rollI * rollIntegral + rollD * rollDerivative, -4500, 4500);
+        previousRollError_T = roll_error_T;
+		*/
+/*
+        pitch_error_T = follow_distance_to_user;
+        pitchIntegral += pitch_error_T * dt_T;
+        pitchDerivative = ((float)(pitch_error_T - previousPitchError_T)) / dt_T;
+        follow_pitch = (int16_t)constrain_float(0 + -1*pitchP * pitch_error_T + pitchI * pitchIntegral + pitchD * pitchDerivative, -4500, 4500);
+        previousPitchError_T = pitch_error_T;
+*/
+        yaw_error_T = follow_centerline_error;
+        yawIntegral += yaw_error_T * dt_T;
+        yawDerivative = ((float)(yaw_error_T - previousYawError_T)) / dt_T;
+        follow_yaw = (int16_t)constrain_float(0 + -1*yawP * yaw_error_T + yawI * yawIntegral + yawD * yawDerivative, -4500, 4500);
+        previousYawError_T = yaw_error_T;
+
+
+
+/*
         tracking_updated = 0;
         uint32_t currentTime = millis();
         dt_T = currentTime - lastTime_T;
@@ -42,7 +81,7 @@ void userhook_FastLoop()
         throttleDerivative = constrain_int32(throttleDerivative, -1000000, 1000000);
         follow_throttle = (int16_t)constrain_float(follow_target_distance + throttleP * height_error_T + throttleI * throttleIntegral + throttleD * throttleDerivative, 0, 1000);
         previousHeightError_T = height_error_T;
-
+*/
         lastTime_T = currentTime;
 	}}
 #endif
@@ -55,7 +94,6 @@ char received[128];
 #ifdef USERHOOK_50HZLOOP
 void userhook_50Hz()
 {
-
 	// put your 50Hz code here
 	if(receivedCount == 0){
 		while(hal.uartB->available()){
@@ -86,10 +124,12 @@ void userhook_50Hz()
 				receivedCount = 0;
 				break;
 			case YAW_PID_ID:
+				hal.console->printf("update yaw pid");
 				updateYawPid();
 				receivedCount = 0;
 				break;
 			case ROLL_PID_ID:
+				hal.console->printf("update roll pid");
 				updateRollPid();
 				receivedCount = 0;
 				break;
@@ -212,6 +252,7 @@ void userhook_SuperSlowLoop()
 */
 
 	//throttle prints
+	/*
 	hal.console->printf("thottle %d\n", follow_throttle);
 //	hal.console->printf("target height %d\n",  follow_target_height);
 //	hal.console->printf("target distance %d\n",  follow_target_distance);
@@ -222,20 +263,46 @@ void userhook_SuperSlowLoop()
 	hal.console->printf("throttle i %f\n",  throttleI);
 	hal.console->printf("throttle d %f\n",  throttleD);
 	hal.console->printf("jacob throttle %d\n",  g.rc_3.control_in);
-
+*/
 	//yaw prints
-	/*
-	hal.console->printf("yaw %d\n", follow_yaw);
+	
+/*	hal.console->printf("roll %d\n", follow_roll);
 	hal.console->printf("yaw offset %d\n",  follow_oculus_yaw_offset);
 	hal.console->printf("oculus yaw %d\n",  follow_oculus_yaw);
 	hal.console->printf("pilot yaw %d\n",  wrap_180_cd(ahrs.yaw_sensor));
-	hal.console->printf("yaw p %f\n",  yawP);
-	hal.console->printf("yaw i %f\n",  yawI);
-	hal.console->printf("yaw d %f\n",  yawD);	
-	*/
+	hal.console->printf("roll error %d\n",  roll_error_T);
+	hal.console->printf("jacob pitch %d\n",  g.rc_1.control_in);
+	hal.console->printf("current height %d\n",  follow_sonar_height);
+*/
+
+/*
+	hal.console->printf("pitch %d\n", follow_pitch);
+	hal.console->printf("distance to user %d\n",  follow_distance_to_user);
+	hal.console->printf("centerline error %d\n", follow_centerline_error);
+	hal.console->printf("pitch error %d\n",  pitch_error_T);
+	hal.console->printf("jacob pitch %d\n",  g.rc_2.control_in);
+	hal.console->printf("current height %d\n",  follow_sonar_height);
+//	hal.console->printf("yaw p %f\n",  yawP);
+//	hal.console->printf("yaw i %f\n",  yawI);
+//	hal.console->printf("yaw d %f\n",  yawD);	
+//	hal.console->printf("throttle p %f\n",  throttleP);
+//	hal.console->printf("throttle i %f\n",  throttleI);
+//	hal.console->printf("throttle d %f\n",  throttleD);	
+	hal.console->printf("pitch p %f\n",  pitchP);
+*/	
 //	received[receivedCount] = '\0';
 //	hal.console->printf("received %s\n",  received);
 
+	hal.console->printf("current height %d\n",  follow_sonar_height);
+	hal.console->printf("yaw %d\n", follow_yaw);
+	hal.console->printf("centerline error %d\n", follow_centerline_error);
+	hal.console->printf("roll %d\n", follow_roll);
+	hal.console->printf("oculus yaw %d\n",  follow_oculus_yaw);
+	hal.console->printf("pilot yaw %d\n",  wrap_180_cd(ahrs.yaw_sensor));
+	hal.console->printf("pitch %d\n", follow_pitch);
+	hal.console->printf("distance %d\n",  follow_distance_to_user);
+	hal.console->printf("jacob pitch %d\n",  g.rc_2.control_in);
+	hal.console->printf("yaw p %f\n",  yawP);
 
 
 	//hal.console->printf("ahrs.pitch_sensor %d\n", ahrs.pitch_sensor);
@@ -317,7 +384,7 @@ void userhook_SuperSlowLoop()
 void updateTrackData(){
 	long index = 3;
 	follow_oculus_yaw = readInt(&index);
-	if(follow_oculus_yaw_offset == -1){
+	if(follow_oculus_yaw_offset == -1 && follow_oculus_yaw != 0){
 		follow_oculus_yaw_offset = follow_oculus_yaw - wrap_180_cd(ahrs.yaw_sensor);
 	}
 	follow_oculus_yaw = follow_oculus_yaw - follow_oculus_yaw_offset;
