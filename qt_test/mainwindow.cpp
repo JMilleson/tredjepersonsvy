@@ -369,7 +369,6 @@ void MainWindow::receivedData(QString s){
         //if(d.object().contains("sensordata")){
         //    qDebug() << "sensor data rec.: " << s;
         //ui->sensorDataPi->setText(d.toJson(QJsonDocument::Indented));
-        return;
         //}
     } catch (...){
         qDebug() << "error while parsing json ....";
