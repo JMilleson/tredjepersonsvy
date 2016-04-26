@@ -19,11 +19,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 //    this->receivedData(QString("{\"sensordata\": {\"distance\": 0, \"height\": 100, \"pitch\": 0,\"roll\": 0, \"uavangle\": 0,   \"yaw\": 0 } }"));
 //    this->receivedData(QString("{\"sensordata\": {\"distance\": 0, \"height\": 150, \"pitch\": 0,\"roll\": 0, \"uavangle\": 0,   \"yaw\": 0 } }"));
 //    this->receivedData(QString("{\"sensordata\": {\"distance\": 0, \"height\": 200, \"pitch\": 0,\"roll\": 0, \"uavangle\": 0,   \"yaw\": 0 } }"));
+
     this->graph();
     this->on_pushGraph1_clicked();
     //this->on_initSerial_clicked();
     //this->on_sendSignal_clicked();
     //connect(serCom,SIGNAL( serialDataConfirmed()),this,SLOT(receivedSerialConfirmation()));
+
+
 
 }
 
@@ -73,7 +76,7 @@ void MainWindow::updateGraph(){
 
 
     ui->graph2->graph(0)->setData(this->uavangleData.second, this->distanceData.second);
-    ui->graph2->xAxis->setRange(-15,15);
+    ui->graph2->xAxis->setRange(-50,50);
     ui->graph2->yAxis->setRange(0, 600);
     ui->graph2->replot();
 }
@@ -324,7 +327,15 @@ void MainWindow::receivedData(QString s){
             //qDebug () <<"height: "<< val << "doubl: " << dVal;
             if ( heightData.first.size()>50){
                 heightData.first.removeLast();
+                double last = heightData.second.last();
                 heightData.second.removeLast();
+                if (last == hMax){
+                    double t  = 0;
+                    for(double d : heightData.second){
+                        t = std::max(t,d);
+                    }
+                    hMax = t;
+                }
             }
             this->heightData.second.push_front(dVal);
             this->heightData.first.push_front(time);
@@ -332,7 +343,7 @@ void MainWindow::receivedData(QString s){
 
             val = obj.value("distance");
             dVal = val.toString().toDouble();
-            if ( distanceData.first.size()>3){
+            if ( distanceData.first.size()>5){
                 distanceData.first.removeLast();
                 distanceData.second.removeLast();
             }
@@ -341,7 +352,7 @@ void MainWindow::receivedData(QString s){
             this->dMax = std::max(this->dMax, dVal+300);
 
 
-            if ( uavangleData.first.size()>3){
+            if ( uavangleData.first.size()>5){
                 uavangleData.first.removeLast();
                 uavangleData.second.removeLast();
             }
