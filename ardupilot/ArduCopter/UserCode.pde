@@ -30,6 +30,20 @@ void userhook_init()
 	int16_t previousYawError_T = 0;
 	uint32_t lastTime_T = 0;
     int32_t dt_T = 0;
+float int16_t e;
+float e1;
+float e2;
+float u;
+float delta_u;
+float y;
+float  k1 = throttleP + throttleI + throttleD;
+float k2 = -throttleP-2*throttleD;
+float k3 = throttleD;
+int16_t UMAX = 1000;
+int16_t UMIN = 450;
+
+
+
 #ifdef USERHOOK_FASTLOOP
 void userhook_FastLoop()
 {
@@ -43,6 +57,31 @@ void userhook_FastLoop()
         tracking_updated = 0;
         uint32_t currentTime = millis();
         dt_T = currentTime - lastTime_T;
+
+        
+        // Test av annan PID Filip Saltvik
+
+        k1 = throttleP + throttleI + throttleD;
+        k2 = -throttleP-2*throttleD;
+        k3 = throttleD;
+        // Values from two previous values.
+        e2 = e1;
+        e1 = e; 
+        // Read sensors value
+        y = follow_sonar_height;
+        // Calculate current error
+        e = follow_target_height - follow_sonar_height;
+        //PID algorithm
+        delta_u = k1*e + k2*e1 + k3*e2;
+        // Update the throttle
+        u = u + delta_u;
+        // Limit throttle to max value
+        if (u > UMAX) u = UMAX;
+        // Limit throttle to min value
+        if (u < UMIN) u = UMIN;
+        // Send throttle
+        follow_throttle = (int16_t)u;
+        
         /*
         roll_error_T = follow_oculus_yaw - wrap_180_cd(ahrs.yaw_sensor);
         if(roll_error_T > 18000){
@@ -62,13 +101,13 @@ void userhook_FastLoop()
         follow_pitch = (int16_t)constrain_float(0 + -1*pitchP * pitch_error_T + pitchI * pitchIntegral + pitchD * pitchDerivative, -4500, 4500);
         previousPitchError_T = pitch_error_T;
 */
-        yaw_error_T = follow_centerline_error;
+/*        yaw_error_T = follow_centerline_error;
         yawIntegral += yaw_error_T * dt_T;
         yawDerivative = ((float)(yaw_error_T - previousYawError_T)) / dt_T;
         follow_yaw = (int16_t)constrain_float(0 + -1*yawP * yaw_error_T + yawI * yawIntegral + yawD * yawDerivative, -4500, 4500);
         previousYawError_T = yaw_error_T;
 
-
+*/
 
 /*
         tracking_updated = 0;
