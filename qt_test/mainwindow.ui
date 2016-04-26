@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
-    <height>1172</height>
+    <width>1278</width>
+    <height>1359</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -905,7 +905,7 @@ p, li { white-space: pre-wrap; }
       <x>10</x>
       <y>560</y>
       <width>1261</width>
-      <height>561</height>
+      <height>741</height>
      </rect>
     </property>
     <property name="title">
@@ -934,7 +934,7 @@ p, li { white-space: pre-wrap; }
       </rect>
      </property>
      <property name="text">
-      <string>10</string>
+      <string>60</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushGraph1">
@@ -956,7 +956,7 @@ p, li { white-space: pre-wrap; }
        <x>10</x>
        <y>50</y>
        <width>641</width>
-       <height>501</height>
+       <height>681</height>
       </rect>
      </property>
     </widget>
@@ -966,7 +966,7 @@ p, li { white-space: pre-wrap; }
        <x>660</x>
        <y>50</y>
        <width>591</width>
-       <height>501</height>
+       <height>681</height>
       </rect>
      </property>
     </widget>
@@ -986,7 +986,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1280</width>
+     <width>1278</width>
      <height>17</height>
     </rect>
    </property>

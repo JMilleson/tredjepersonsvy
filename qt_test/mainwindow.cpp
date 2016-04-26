@@ -303,7 +303,7 @@ void MainWindow::receivedData(QString s){
     try {
         QJsonDocument d = QJsonDocument::fromJson(s.toUtf8());
         //qDebug() << d;
-        qDebug() << d.object() << d.object().contains("") << d.object().keys();
+        //qDebug() << d.object() << d.object().contains("") << d.object().keys();
 
 
         QJsonObject robj = d.object();
@@ -322,7 +322,7 @@ void MainWindow::receivedData(QString s){
             double dVal = val.toString().toDouble();
 
             //qDebug () <<"height: "<< val << "doubl: " << dVal;
-            if ( heightData.first.size()>100){
+            if ( heightData.first.size()>50){
                 heightData.first.removeLast();
                 heightData.second.removeLast();
             }
