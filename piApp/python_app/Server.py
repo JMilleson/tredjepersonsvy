@@ -26,11 +26,15 @@ class ThreadedTCPHandler(socketserver.BaseRequestHandler):
         self.server.notify("ClientConnected",self,self.client_address[0]);
         
         while not self.close:
-            self.data = self.request.recv(1024).strip()
-            cur_thread = threading.current_thread();
-            #print ("data received from {} .".format(self.client_address[0]))
-            self.server.notify("ReceivedTCP",self.data,self.client_address[0])
-            #self.request.sendto(b'Thanks!', self.client_address)
+            try: 
+                self.data = self.request.recv(1024).strip()
+                cur_thread = threading.current_thread();
+                #print ("data received from {} .".format(self.client_address[0]))
+                self.server.notify("ReceivedTCP",self.data,self.client_address[0])
+                #self.request.sendto(b'Thanks!', self.client_address)
+                #print("WHAAAAAAT")
+            except Exception  as err:
+                self.close = True
         
     
 

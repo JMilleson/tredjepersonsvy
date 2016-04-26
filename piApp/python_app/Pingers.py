@@ -17,6 +17,7 @@ class Pingers:
         
         def __init__(self):
             self.thing = 0;
+            self.calibStartup = False
 
 
             #Pins för Ping)) för avståndsmätning
@@ -25,16 +26,16 @@ class Pingers:
             #pins för höjdmätning med SR-04
             self.pinTrig = 16
             self.pinEcho = 18
-            
+            self.avg = 0
             
             self.invalidDistance = 600
-            self.intervall = 50
+            self.intervall = 60
             self.startDistance = 300
             self.calibratedTime = getTimeMillis()
             self.speedOfSound = 34300
             self.tot = 0
             self.count = 0
-            self.old = 0
+            self.old = self.startDistance
 
             # Disable any warning message such as GPIO pins in use
             GPIO.setwarnings(False)
@@ -116,9 +117,15 @@ class Pingers:
             distanceStyr = (self.StyrEndTime - self.StyrStartTime) * 34300
             distanceBabo = (self.BaboEndTime - self.BaboStartTime) * 34300
             distanceDiff = distanceStyr - distanceBabo
+            if distanceDiff > 20:
+                distanceDiff = 0
+            elif distanceDiff <-20:
+                distanceDiff = 0
             return {'dist':distanceStyr,'trackDiff': distanceDiff}
         
         def getFixedRemote(self):
+
+            #print("ping")
             temptime = getTimeMillis()
             target_time = temptime + self.intervall -  (((temptime - self.calibratedTime) *1000)% (self.intervall*1000))/1000
             
@@ -142,27 +149,59 @@ class Pingers:
         
             #return {'diff':unfixed['diff']-diff/34300,'dist':unfixed['dist']-diff/34300}
             #print(unfixed)
-            new = unfixed['dist']
-            if self.old != 0 :
-                self.tot += self.old - new
-                self.count += 1
-                #print("Average: " + str(self.tot/self.count))#+"  time per loop: "+str(getTimeMillis()-self.lastTime))
-            self.old = new
-            self.calibratedTime += 0.0288 #0.02685-
-            self.lastTime = getTimeMillis()
+            '''new = unfixed['dist']
+            if self.calibStartup:
+                if self.count == 0 :
+                    self.old = new
+                    self.tot = 0
+                    self.count = 1
+                else :
+                    diff = new-self.old
+                    self.tot += diff
+                    self.count += 1
+                    self.avg = self.tot/(self.count-1)
+                    self.avgInTime = diff/self.speedOfSound
+                    print("old/new: "+str(self.old)+" / "+str(new)+ " diff T: "+str(diff/self.speedOfSound))
+                    #print("Diff: "+str(diff) + "diff in time: "+str(diff/self.speedOfSound)+" Average: " + str(self.avgInTime))#+"  time per loop: "+str(getTimeMillis()-self.lastTime))
+                    self.old = new
+                    self.calibratedTime -= 0.0003 #diff/self.speedOfSound
+                    #if self.count == 2:
+                    #    self.calibratedTime += diff / self.speedOfSound
+                    if self.calibStartupStartTime - getTimeMillis() < -1000 :
+                        self.calibStartup = False
+                        #self.calibratedTime += self.avg * self.count
+                        print ("calib done")
+            else :
+                '''
+
+            if self.calibStartup and self.calibStartupStartTime - getTimeMillis() < -1000 :
+                print ("calib done")
+                self.calibStartup = False
+                        
+            self.calibratedTime +=  0.0312 #self.tot/self.count #0.03 #0.02685-
+            #self.lastTime = getTimeMillis()
+
             
-            return {'distError':unfixed['dist']-self.startDistance,'trackDiff':unfixed['trackDiff']}
+            if unfixed['dist'] > 620 :
+                unfixed['dist'] = self.startDistance
+
+            return {'distError':unfixed['dist'] - self.startDistance,'trackDiff':unfixed['trackDiff']}
         
         
         def setup(self):
+            print("Calibrating sensors")
             while True :
                 starttime = getTimeMillis()
                 distance = self.getRemotePing()['dist']
-                if distance < self.invalidDistance :
-                    break
-                
+                if distance >= self.invalidDistance :
+                    print("invalid distance match: "+ str(distance))
+                    continue
+                print("valid match: "+str(distance))
+                break
+            print ("calib time: " + str(self.calibratedTime))
             self.calibratedTime = starttime + (distance - self.startDistance)/(self.speedOfSound/1000)
-            print (self.calibratedTime)
+            self.calibStartup = True
+            self.calibStartupStartTime = getTimeMillis()
             
             # vårt mål är att starta mätning vid starttime+n*0.05
         

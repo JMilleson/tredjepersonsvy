@@ -28,7 +28,7 @@ targetValuesid = '6'
 class ArdupilotComm:
         
     """For communicating with ardupilot by USB"""
-    ser = serial.Serial('/dev/ttyAMA0', 57600, timeout=1)
+    ser = serial.Serial('/dev/ttyAMA0', 115200, timeout=1)
 
     if not ser.isOpen():
         ser.open()
@@ -80,7 +80,7 @@ class ArdupilotComm:
 
 
     def sendString(self,str):
-        #print(str)
+       #print(str)
         
         self.ser.write(bytes(str,'utf8'))
             

@@ -46,6 +46,8 @@ private slots:
 
     void on_stopVideo_clicked();
 
+    void on_pushGraph1_clicked();
+
     //void on_initSerial_clicked();
     //void on_sendSignal_clicked();
 
@@ -59,6 +61,8 @@ private slots:
     void sentData(QString s);
     void receivedData(QString s);
     void enableSendSensors();
+    void graph();
+    void updateGraph();
     //void receivedSerialConfirmation();
 
 private:
@@ -67,11 +71,19 @@ private:
     OcculusSensorController oculus;
     QTimer *timer = new QTimer(this);
     QTimer * requestSensorDataTimer = new QTimer(this);
+    QElapsedTimer * applicationRuntimeTimer = new QElapsedTimer();
+    QTimer * graphTimer = new QTimer(this);
     SerialCommunication * serCom = new SerialCommunication();
     void stopSendData();
     void startSendData();
     void startRequestData();
     void stopRequestData();
+    std::pair<QVector<double>,QVector<double>> heightData;
+    std::pair<QVector<double>,QVector<double>> distanceData;
+    std::pair<QVector<double>,QVector<double>> uavangleData;
+    double hMax = 0;
+    double dMax = 0;
+
 
     QProcess videoProcess;
     //QElapsedTimer serialTimer ;
