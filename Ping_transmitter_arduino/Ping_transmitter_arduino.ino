@@ -1,16 +1,18 @@
 
-#define delaymicros 50000
+#define delaymicros 60000
 //50 000 <=> 20 Hz
 
+int pingPin = 7;
+
+
 void setup() {
-  // put your setup code here, to run once:
 
-
-//Serial.begin(57600);
+Serial.begin(57600);
 
 }
 
-int pingPin= 7;
+
+
 
 void loop() {
   // put your main code here, to run repeatedly:
@@ -49,3 +51,4 @@ while(true) {
 }
 
 }
+
