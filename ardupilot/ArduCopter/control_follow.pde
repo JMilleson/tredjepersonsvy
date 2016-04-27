@@ -10,6 +10,7 @@ int16_t previousPitchError = 0;
 int16_t previousRollError = 0;
 uint32_t lastTime = 0;
 int16_t baseThrottle = 600;
+int16_t previousHeight = 0;
 
 int16_t e;
 int16_t e1;
@@ -37,6 +38,7 @@ static bool follow_init(bool ignore_checks)
     baseThrottle = g.rc_3.control_in;
     //values between 0 and 1000
 
+    previousHeight = follow_sonar_height;
     previousHeightError = 0;
     previousYawError = 0;
     previousPitchError = 0;
@@ -113,83 +115,110 @@ static void follow_run()
         previousHeightError = height_error;
         */
 
-        k1 = throttleP + throttleI + throttleD;
-        k2 = -throttleP-2*throttleD;
-        k3 = throttleD;
-        // Values from two previous values.
-        e2 = e1;
-        e1 = e; 
-        // Read sensors value
-        y = follow_sonar_height;
-        // Calculate current error
-        e = follow_target_height - follow_sonar_height;
-        //PID algorithm
-        delta_u = k1*e + k2*e1 + k3*e2;
-        // Update the u value.
-        u = u + delta_u;
-        // Limit throttle difference to max value
-        if (u > UMAX) u = UMAX;
-        // Limit throttle difference to min value
-        if (u < UMIN) u = UMIN;
-        // Send throttle with baseThrotthle value, i.e. basethrottle plus difference, 
-        
-        follow_throttle = (int16_t)constrain_float(u+baseThrottle, 0, 1000);
-        // 100 560
-        //146 513
+        /*follow_target_distance is in fact "settings". Set the bits according to this guide to set automatic control on required directions
+        [pitch w. US , Roll w. Oculus, Yaw w. Oculus, Yaw w. US, Height w. US]. Recommended setting for automatic flight is 27 */
+        if(follow_target_distance & 1){
 
-        //update yaw with oculus
-        /*
-        yaw_error = follow_oculus_yaw - wrap_180_cd(ahrs.yaw_sensor);
-        yawIntegral += yaw_error * dt;
-        yawDerivative = ((float)(yaw_error - previousYawError)) / dt;
-        follow_yaw = (int16_t)constrain_float(0 + yawP * yaw_error + yawI * yawIntegral + yawD * yawDerivative, -4500, 4500);
-        previousYawError = yaw_error;
-        */
+            #define maxDiff 20 
+            if(abs(follow_sonar_height - previousHeight) > maxDiff) {
+                follow_sonar_height = previousHeight + 2 * (((follow_sonar_height - previousHeight) > 0) - ((follow_sonar_height - previousHeight) < 0));
+                hal.console->printf("To fast %d\n",  follow_sonar_height);
+            }
 
-        //update yaw with ultrasonic tracking
-        
-        yaw_error = follow_centerline_error;
-        yawIntegral += yaw_error * dt;
-        yawDerivative = ((float)(yaw_error - previousYawError)) / dt;
-        follow_yaw = (int16_t)constrain_float(0 + -1*yawP * yaw_error + yawI * yawIntegral + yawD * yawDerivative, -4500, 4500);
-        previousYawError = yaw_error;
-        
+            previousHeight = follow_sonar_height;
 
-        //update roll with oculus yaw
-        
-        roll_error = follow_oculus_yaw - wrap_180_cd(ahrs.yaw_sensor);
-        if(roll_error > 18000){
-            roll_error = roll_error - 36000;
-        }else if(roll_error < -18000){
-            roll_error = 36000 + roll_error;
+            k1 = throttleP + throttleI + throttleD;
+            k2 = -throttleP-2*throttleD;
+            k3 = throttleD;
+            // Values from two previous values.
+            e2 = e1;
+            e1 = e; 
+            // Read sensors value
+            y = follow_sonar_height;
+            // Calculate current error
+            e = follow_target_height - follow_sonar_height;
+            //PID algorithm
+            delta_u = k1*e + k2*e1 + k3*e2;
+            // Update the u value.
+            u = u + delta_u;
+            // Limit throttle difference to max value
+            if (u > UMAX) u = UMAX;
+            // Limit throttle difference to min value
+            if (u < UMIN) u = UMIN;
+            // Send throttle with baseThrotthle value, i.e. basethrottle plus difference, 
+            
+            follow_throttle = (int16_t)constrain_float(u+baseThrottle, 0, 1000);
+            // 100 560
+            //146 513
+        } else {
+            follow_throttle = get_pilot_desired_throttle(g.rc_3.control_in);
         }
-        rollIntegral += roll_error * dt;
-        rollDerivative = ((float)(roll_error - previousRollError)) / dt;
-        follow_roll = (int16_t)constrain_float(0 + -1*rollP * roll_error + rollI * rollIntegral + rollD * rollDerivative, -4500, 4500);
-        previousRollError = roll_error;
+
+        
+        if(follow_target_distance & 4){
+            //update yaw with oculus
+            yaw_error = follow_oculus_yaw - wrap_180_cd(ahrs.yaw_sensor);
+            yawIntegral += yaw_error * dt;
+            yawDerivative = ((float)(yaw_error - previousYawError)) / dt;
+            follow_yaw = (int16_t)constrain_float(0 + yawP * yaw_error + yawI * yawIntegral + yawD * yawDerivative, -4500, 4500);
+            previousYawError = yaw_error;
+
+        } else if(follow_target_distance & 2){
+            //update yaw with ultrasonic tracking
+            yaw_error = follow_centerline_error;
+            yawIntegral += yaw_error * dt;
+            yawDerivative = ((float)(yaw_error - previousYawError)) / dt;
+            follow_yaw = (int16_t)constrain_float(0 + -1*yawP * yaw_error + yawI * yawIntegral + yawD * yawDerivative, -4500, 4500);
+            previousYawError = yaw_error;
+
+        } else {
+            follow_yaw = g.rc_4.control_in;
+        }
+
         
 
-        //update pitch with ultrasonic distance
+        if(follow_target_distance & 8){
+            //update roll with oculus yaw
+            
+            roll_error = follow_oculus_yaw - wrap_180_cd(ahrs.yaw_sensor);
+            if(roll_error > 18000){
+                roll_error = roll_error - 36000;
+            }else if(roll_error < -18000){
+                roll_error = 36000 + roll_error;
+            }
+            rollIntegral += roll_error * dt;
+            rollDerivative = ((float)(roll_error - previousRollError)) / dt;
+            follow_roll = (int16_t)constrain_float(0 + -1*rollP * roll_error + rollI * rollIntegral + rollD * rollDerivative, -4500, 4500);
+            previousRollError = roll_error;
+        } else {
+            follow_roll = g.rc_1.control_in;
+        }
         
-        //pitch_error = follow_target_distance - follow_distance_to_user;
-        pitch_error = follow_distance_to_user;
-        pitchIntegral += pitch_error * dt;
-        pitchDerivative = ((float)(pitch_error - previousPitchError)) / dt;
-        follow_pitch = (int16_t)constrain_float(0 + -1*pitchP * pitch_error + pitchI * pitchIntegral + pitchD * pitchDerivative, -4500, 4500);
-        previousPitchError = pitch_error;
-        
+
+        if(follow_target_distance & 16){
+            //update pitch with ultrasonic distance
+            
+            //pitch_error = follow_target_distance - follow_distance_to_user;
+            pitch_error = follow_distance_to_user;
+            pitchIntegral += pitch_error * dt;
+            pitchDerivative = ((float)(pitch_error - previousPitchError)) / dt;
+            follow_pitch = (int16_t)constrain_float(0 + -1*pitchP * pitch_error + pitchI * pitchIntegral + pitchD * pitchDerivative, -4500, 4500);
+            previousPitchError = pitch_error;
+        } else {
+            follow_pitch = g.rc_2.control_in;
+        }
 
         lastTime = currentTime;
     }
 
 
-    target_yaw_rate = get_pilot_desired_yaw_rate(g.rc_4.control_in);
-    get_pilot_desired_lean_angles(g.rc_1.control_in, g.rc_2.control_in, target_roll, target_pitch);
+    //target_yaw_rate = get_pilot_desired_yaw_rate(g.rc_4.control_in);
+    //get_pilot_desired_lean_angles(g.rc_1.control_in, g.rc_2.control_in, target_roll, target_pitch);
 //enable full tracking    
-//    target_yaw_rate = get_pilot_desired_yaw_rate(follow_yaw);
+    target_yaw_rate = get_pilot_desired_yaw_rate(follow_yaw);
 //    get_pilot_desired_lean_angles(g.rc_1.control_in, follow_pitch, target_roll, target_pitch);
 //    get_pilot_desired_lean_angles(follow_roll, g.rc_2.control_in, target_roll, target_pitch);
-//    get_pilot_desired_lean_angles(follow_roll, follow_pitch, target_roll, target_pitch);
+    get_pilot_desired_lean_angles(follow_roll, follow_pitch, target_roll, target_pitch);
     attitude_control.angle_ef_roll_pitch_rate_ef_yaw_smooth(target_roll, target_pitch, target_yaw_rate, get_smoothing_gain());
     attitude_control.set_throttle_out(follow_throttle, true);
     //attitude_control.set_throttle_out(get_pilot_desired_throttle(g.rc_3.control_in), true);
