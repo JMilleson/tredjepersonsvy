@@ -40,7 +40,7 @@ float  k1 = throttleP + throttleI + throttleD;
 float k2 = -throttleP-2*throttleD;
 float k3 = throttleD;
 int16_t UMAX = 1000;
-int16_t UMIN = 450;
+int16_t UMIN = -1000;
 
 
 
@@ -73,14 +73,15 @@ void userhook_FastLoop()
         e = follow_target_height - follow_sonar_height;
         //PID algorithm
         delta_u = k1*e + k2*e1 + k3*e2;
-        // Update the throttle
+        // Update the u value.
         u = u + delta_u;
-        // Limit throttle to max value
+        // Limit throttle difference to max value
         if (u > UMAX) u = UMAX;
-        // Limit throttle to min value
+        // Limit throttle difference to min value
         if (u < UMIN) u = UMIN;
-        // Send throttle
-        follow_throttle = (int16_t)u;
+        // Send throttle with baseThrotthle value, i.e. basethrottle plus difference, 
+        
+        follow_throttle = (int16_t) (u+baseThrottle);
         
         /*
         roll_error_T = follow_oculus_yaw - wrap_180_cd(ahrs.yaw_sensor);
