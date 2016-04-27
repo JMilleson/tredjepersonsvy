@@ -80,3 +80,4 @@ if __name__ == "__main__":
 
     #Start App
     app = piApp()
+    input("press any key toexit")

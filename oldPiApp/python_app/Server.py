@@ -14,15 +14,27 @@ class ThreadedTCPHandler(socketserver.BaseRequestHandler):
     override the handle() method to implement communication to the
     client.
     """
+    def send(self, data):
+        #print("attempt to send ping...")
+        self.request.sendto(data, self.client_address)
 
     def handle(self):
-        close = False
-        while not close:
-            self.data = self.request.recv(1024).strip()
-            cur_thread = threading.current_thread();
-            print ("data received from {} .".format(self.client_address[0]))
-            self.server.notify("ReceivedTCP",self.data,self.client_address[0])
-            self.request.sendto(b'Thanks!', self.client_address)
+        self.close = False
+
+        #self.data = self.request.recv(1024).strip()
+        print("connected to basestation")
+        self.server.notify("ClientConnected",self,self.client_address[0]);
+        
+        while not self.close:
+            try: 
+                self.data = self.request.recv(1024).strip()
+                cur_thread = threading.current_thread();
+                #print ("data received from {} .".format(self.client_address[0]))
+                self.server.notify("ReceivedTCP",self.data,self.client_address[0])
+                #self.request.sendto(b'Thanks!', self.client_address)
+                #print("WHAAAAAAT")
+            except Exception  as err:
+                self.close = True
         
     
 

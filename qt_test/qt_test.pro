@@ -8,7 +8,7 @@ QT       += core gui
 QT       += network
 QT       += serialport
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = qt_test
 TEMPLATE = app
@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     occulussensorcontroller.cpp \
     occulussensocontrollersimulator.cpp \
     connectworker.cpp \
-    serialcommunication.cpp
+    serialcommunication.cpp \
+    qcustomplot.cpp
 
 HEADERS  += mainwindow.h \
     tcpclient.h \
@@ -28,7 +29,8 @@ HEADERS  += mainwindow.h \
     occulussensocontrollersimulator.h \
     json.hpp \
     connectworker.h \
-    serialcommunication.h
+    serialcommunication.h \
+    qcustomplot.h
 
 FORMS    += mainwindow.ui
 

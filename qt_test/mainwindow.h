@@ -34,6 +34,8 @@ private slots:
 
     void on_pushSendSensorData_clicked();
 
+    void on_pushCalibrateSensors_clicked();
+
     void on_send_clicked();
 
     void on_pushSendSettings_clicked();
@@ -42,26 +44,49 @@ private slots:
 
     void on_viewVideo_clicked();
 
-    void on_initSerial_clicked();
-    void on_sendSignal_clicked();
+    void on_stopVideo_clicked();
+
+    void on_pushGraph1_clicked();
+
+    //void on_initSerial_clicked();
+    //void on_sendSignal_clicked();
+
+    void on_requestSensorData_clicked();
 
     void sendSensorData();
+    void requestSensorData();
     void connected();
     void disconnected();
     void connectSocket();
     void sentData(QString s);
     void receivedData(QString s);
-    void receivedSerialConfirmation();
+    void enableSendSensors();
+    void graph();
+    void updateGraph();
+    //void receivedSerialConfirmation();
 
 private:
     Ui::MainWindow *ui;
     TcpClient * client = new  TcpClient();
     OcculusSensorController oculus;
     QTimer *timer = new QTimer(this);
+    QTimer * requestSensorDataTimer = new QTimer(this);
+    QElapsedTimer * applicationRuntimeTimer = new QElapsedTimer();
+    QTimer * graphTimer = new QTimer(this);
     SerialCommunication * serCom = new SerialCommunication();
     void stopSendData();
     void startSendData();
-    QElapsedTimer serialTimer ;
+    void startRequestData();
+    void stopRequestData();
+    std::pair<QVector<double>,QVector<double>> heightData;
+    std::pair<QVector<double>,QVector<double>> distanceData;
+    std::pair<QVector<double>,QVector<double>> uavangleData;
+    double hMax = 0;
+    double dMax = 0;
+
+
+    QProcess videoProcess;
+    //QElapsedTimer serialTimer ;
 };
 
 #endif // MAINWINDOW_H
