@@ -1,11 +1,11 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
+
 #ifdef USERHOOK_INIT
 void userhook_init()
 {
     // put your initialisation code here
     // this will be called once at start-up
-
 	g.flight_mode1 = STABILIZE;
 	g.flight_mode2 = FOLLOW;
 	g.flight_mode3 = LAND;
@@ -26,6 +26,7 @@ void userhook_init()
 //	int16_t previousRollError_T = 0;
 //	int16_t pitch_error_T = 0;
 //	int16_t previousPitchError_T = 0;
+/*
 	int16_t yaw_error_T = 0;
 	int16_t previousYawError_T = 0;
 	uint32_t lastTime_T = 0;
@@ -42,11 +43,13 @@ float k3 = throttleD;
 int16_t UMAX = 1000;
 int16_t UMIN = -1000;
 
+*/
 
 
 #ifdef USERHOOK_FASTLOOP
 void userhook_FastLoop()
 {
+	/*
     // put your 100Hz code here
     if(tracking_updated){
         //update throttle
@@ -121,9 +124,10 @@ void userhook_FastLoop()
         throttleDerivative = constrain_int32(throttleDerivative, -1000000, 1000000);
         follow_throttle = (int16_t)constrain_float(follow_target_distance + throttleP * height_error_T + throttleI * throttleIntegral + throttleD * throttleDerivative, 0, 1000);
         previousHeightError_T = height_error_T;
-*/
+
         lastTime_T = currentTime;
-	}}
+*/
+	}
 #endif
 
 //uint16_t i = 0;
@@ -334,6 +338,10 @@ void userhook_SuperSlowLoop()
 //	hal.console->printf("received %s\n",  received);
 
 	hal.console->printf("current height %d\n",  follow_sonar_height);
+	hal.console->printf("throttle %d\n",  follow_throttle);
+	hal.console->printf("throttle p %f\n",  throttleP);
+
+/*
 	hal.console->printf("yaw %d\n", follow_yaw);
 	hal.console->printf("centerline error %d\n", follow_centerline_error);
 	hal.console->printf("roll %d\n", follow_roll);
@@ -343,7 +351,7 @@ void userhook_SuperSlowLoop()
 	hal.console->printf("distance %d\n",  follow_distance_to_user);
 	hal.console->printf("jacob pitch %d\n",  g.rc_2.control_in);
 	hal.console->printf("yaw p %f\n",  yawP);
-
+*/
 
 	//hal.console->printf("ahrs.pitch_sensor %d\n", ahrs.pitch_sensor);
 	//hal.console->printf("ahrs.yaw_sensor %d\n", ahrs.yaw_sensor);

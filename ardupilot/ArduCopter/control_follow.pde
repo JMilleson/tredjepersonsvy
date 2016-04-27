@@ -11,6 +11,19 @@ int16_t previousRollError = 0;
 uint32_t lastTime = 0;
 int16_t baseThrottle = 600;
 
+int16_t e;
+int16_t e1;
+int16_t e2;
+float u;
+float delta_u;
+int16_t y;
+float  k1 = throttleP + throttleI + throttleD;
+float k2 = -throttleP-2*throttleD;
+float k3 = throttleD;
+int16_t UMAX = 1000;
+int16_t UMIN = -1000;
+
+
 // follow_init - initialise follow mode
 static bool follow_init(bool ignore_checks)
 {
@@ -91,13 +104,38 @@ static void follow_run()
         tracking_updated = 0;
         uint32_t currentTime = millis();
         int32_t dt = currentTime - lastTime;
+        /*
         height_error =  follow_target_height - follow_sonar_height;
         throttleIntegral += height_error * dt;
         //throttleIntegral = constrain_int32(throttleIntegral, -1500000, 1500000);
         throttleDerivative = ((float)(height_error - previousHeightError)) / dt;
         follow_throttle = (int16_t)constrain_float(baseThrottle + throttleP * height_error + throttleI * throttleIntegral + throttleD * throttleDerivative, 0, 1000);
         previousHeightError = height_error;
+        */
 
+        k1 = throttleP + throttleI + throttleD;
+        k2 = -throttleP-2*throttleD;
+        k3 = throttleD;
+        // Values from two previous values.
+        e2 = e1;
+        e1 = e; 
+        // Read sensors value
+        y = follow_sonar_height;
+        // Calculate current error
+        e = follow_target_height - follow_sonar_height;
+        //PID algorithm
+        delta_u = k1*e + k2*e1 + k3*e2;
+        // Update the u value.
+        u = u + delta_u;
+        // Limit throttle difference to max value
+        if (u > UMAX) u = UMAX;
+        // Limit throttle difference to min value
+        if (u < UMIN) u = UMIN;
+        // Send throttle with baseThrotthle value, i.e. basethrottle plus difference, 
+        
+        follow_throttle = (int16_t)constrain_float(u+baseThrottle, 0, 1000);
+        // 100 560
+        //146 513
 
         //update yaw with oculus
         /*
@@ -148,11 +186,13 @@ static void follow_run()
     target_yaw_rate = get_pilot_desired_yaw_rate(g.rc_4.control_in);
     get_pilot_desired_lean_angles(g.rc_1.control_in, g.rc_2.control_in, target_roll, target_pitch);
 //enable full tracking    
-    //target_yaw_rate = get_pilot_desired_yaw_rate(follow_yaw);
+//    target_yaw_rate = get_pilot_desired_yaw_rate(follow_yaw);
 //    get_pilot_desired_lean_angles(g.rc_1.control_in, follow_pitch, target_roll, target_pitch);
 //    get_pilot_desired_lean_angles(follow_roll, g.rc_2.control_in, target_roll, target_pitch);
 //    get_pilot_desired_lean_angles(follow_roll, follow_pitch, target_roll, target_pitch);
     attitude_control.angle_ef_roll_pitch_rate_ef_yaw_smooth(target_roll, target_pitch, target_yaw_rate, get_smoothing_gain());
     attitude_control.set_throttle_out(follow_throttle, true);
+    //attitude_control.set_throttle_out(get_pilot_desired_throttle(g.rc_3.control_in), true);
+
 
 }
