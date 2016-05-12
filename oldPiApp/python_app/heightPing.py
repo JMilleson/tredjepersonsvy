@@ -1,3 +1,7 @@
+
+pinTrig = 16 #Board-numrering
+pinEcho = 18
+
 #!/usr/bin/python
 
 # remember to change the GPIO values below to match your sensors
@@ -14,10 +18,8 @@ GPIO.setwarnings(False)
 # so if you connect to GPIO 25 which is on pin number 22, the 
 # reference in this code is 25, which is the number of the GPIO 
 # port and not the number of the physical pin
-GPIO.setmode(GPIO.BCM)
+GPIO.setmode(GPIO.BOARD)
 
-pinTrig = 16
-pinEcho = 18
 
 GPIO.setup(pinTrig,GPIO.OUT)
 GPIO.setup(pinEcho,GPIO.IN)
@@ -28,11 +30,10 @@ GPIO.output(pinTrig, GPIO.LOW)
 
 # found that the sensor can crash if there isn't a delay here
 # no idea why. If you have odd crashing issues, increase delay
-time.sleep(0.3)
+time.sleep(1)
     
 
-def reading(sensor):
-
+def getHeight():
 
     # sensor manual says a pulse ength of 10Us will trigger the 
     # sensor to transmit 8 cycles of ultrasonic burst at 40kHz and 
@@ -64,10 +65,10 @@ def reading(sensor):
 
     sendtTime = time.time()
     
-    while GPIO.input(pinEcho) == 0 and time.time()<sendtTime+3:
+    while (GPIO.input(pinEcho) == 0) and (time.time()<sendtTime+6):
         signaloff = time.time()
     
-    # listen to the input pin. Once a signal is received, record the
+    # listen to the inputand in python ifea pin. Once a signal is received, record the
     # time the signal came through
     # change this value to the pin you are using
     # GPIO input = the pin that's connected to "Echo" on the sensor
@@ -83,7 +84,11 @@ def reading(sensor):
     distance = timepassed * 17000
     
     # return the distance of an object in front of the sensor in cm
-    return distance
+    
+    GPIO.output(pinTrig, GPIO.LOW)
+
+    
+    return str(int(distance))
     
     # we're no longer using the GPIO, so tell software we're done
     # GPIO.cleanup()

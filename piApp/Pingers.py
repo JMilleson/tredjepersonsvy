@@ -6,18 +6,32 @@
 import time
 import RPi.GPIO as GPIO
 
+def getTimeMillis():
+    return time.perf_counter()*1000
+
 class Pingers:
 
+        
+        
         def __init__(self):
 
 
             #Pins för Ping)) för avståndsmätning
-            self.pinBabord = 11 #Board-numrering
-            self.pinStyrbord = 13
+            self.pinBabord = 13 #Board-numrering
+            self.pinStyrbord = 11
             #pins för höjdmätning med SR-04
             self.pinTrig = 16
             self.pinEcho = 18
-
+            
+            
+            self.invalidDistance = 600
+            self.intervall = 50
+            self.startDistance = 300
+            self.calibratedTime = 0
+            self.speedOfSound = 34300
+            self.tot = 0
+            self.count = 0
+            self.old = 0
 
             # Disable any warning message such as GPIO pins in use
             GPIO.setwarnings(False)
@@ -51,6 +65,8 @@ class Pingers:
             self.StyrStartTime = 0.0
             self.StyrEndTime = 0.0
             self.BaboEndTime = 0.0
+            self.firstTime = 0.0
+
 
         def getRemotePing(self):
 
@@ -97,7 +113,54 @@ class Pingers:
             distanceStyr = (self.StyrEndTime - self.StyrStartTime) * 34300
             distanceBabo = (self.BaboEndTime - self.BaboStartTime) * 34300
             distanceDiff = distanceStyr - distanceBabo
-            return {'dist':"%0.2f" % distanceStyr,'diff':"%0.2f" % distanceDiff}
+            return {'dist':distanceStyr,'trackDiff': distanceDiff}
+        
+        def getFixedRemote(self):
+            temptime = getTimeMillis()
+            target_time = temptime + self.intervall -  (((temptime - self.calibratedTime) *1000)% (self.intervall*1000))/1000
+            
+            while getTimeMillis() < target_time:
+                pass    
+
+            
+            
+            #diff = 0.05 - (((time.perf_counter()-self.firstTime)*100) % (0.05*100))/100
+        
+            #if (diff > 0.015):
+            #    time.sleep(diff-0.015)
+                
+            #diff = 0.05 - (((time.perf_counter()-self.firstTime)*100) % (0.05*100))/100
+
+            ctime = getTimeMillis();
+            #print("Difference "+str(ctime-target_time)+"oftarget: "+str((ctime-self.calibratedTime)% self.intervall))
+            unfixed=self.getRemotePing()
+        
+            #return {'diff':unfixed['diff']-diff/34300,'dist':unfixed['dist']-diff/34300}
+            #print(unfixed)
+            new = unfixed['dist']
+            if self.old != 0 :
+                self.tot += self.old - new
+                self.count += 1
+                #print("Average: " + str(self.tot/self.count))#+"  time per loop: "+str(getTimeMillis()-self.lastTime))
+            self.old = new
+            self.calibratedTime += 0.0288 #0.02685-
+            self.lastTime = getTimeMillis()
+            
+            return {'distError':unfixed[dist]-self.startDistance,'trackDiff':unfixed['trackDiff']}
+        
+        
+        def setup(self):
+            while True :
+                starttime = getTimeMillis()
+                distance = self.getRemotePing()['dist']
+                if distance < self.invalidDistance :
+                    break
+                
+            self.calibratedTime = starttime + (distance - self.startDistance)/(self.speedOfSound/1000)
+            print (self.calibratedTime)
+            
+            # vårt mål är att starta mätning vid starttime+n*0.05
+        
         
         def getHeight(self):
 
