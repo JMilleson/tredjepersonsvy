@@ -15,8 +15,9 @@ int16_t follow_sonar_height = 200;
 int16_t follow_oculus_yaw = 0;
 int16_t follow_oculus_yaw_offset = -1;
 int16_t follow_distance_to_user = -1;
-int16_t follow_target_distance = 300;
+int16_t follow_tracking_mode = 0;
 int16_t follow_centerline_error = -1;
+int16_t maxDiff = 20;
 int tracking_updated = 0;
 
 float throttleP = 0.25f, throttleI = 0.0002f, throttleD = 0;

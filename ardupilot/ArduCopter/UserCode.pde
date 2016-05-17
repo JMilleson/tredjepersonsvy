@@ -267,6 +267,11 @@ void userhook_SlowLoop()
 }
 #endif
 
+int16_t test_throttle = 0;
+int16_t test_roll = 0;
+int16_t test_pitch = 0;
+int16_t test_yaw = 0;
+int16_t test_roll_oculus = 0;
 
 #ifdef USERHOOK_SUPERSLOWLOOP
 void userhook_SuperSlowLoop()
@@ -338,8 +343,16 @@ void userhook_SuperSlowLoop()
 //	hal.console->printf("received %s\n",  received);
 
 	hal.console->printf("current height %d\n",  follow_sonar_height);
-	hal.console->printf("throttle %d\n",  follow_throttle);
-	hal.console->printf("throttle p %f\n",  throttleP);
+	//hal.console->printf("climb rate %d\n",  climb_rate);
+	hal.console->printf("climb rate %f\n",  baro_climbrate);
+	hal.console->printf("oculus yaw %d\n",  follow_oculus_yaw);
+	hal.console->printf("pilot yaw %d\n",  wrap_180_cd(ahrs.yaw_sensor));
+	hal.console->printf("maxDiff %ld\n",  maxDiff);
+	//hal.console->printf("centerline error %d\n", follow_centerline_error);
+
+	
+	//hal.console->printf("throttle %d\n",  follow_throttle);
+	//hal.console->printf("throttle p %f\n",  throttleP);
 
 /*
 	hal.console->printf("yaw %d\n", follow_yaw);
@@ -445,7 +458,11 @@ void updateTrackData(){
 void updateSettings(){
 	long index = 3;
 	follow_target_height = readInt(&index);
-	follow_target_distance = readInt(&index);
+	follow_tracking_mode = readInt(&index);
+	maxDiff = follow_tracking_mode / 32;
+	if(maxDiff == 0){
+		maxDiff = 20;
+	}
 }
 
 void updateThrottlePid(){

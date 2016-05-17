@@ -11,6 +11,7 @@ int16_t previousRollError = 0;
 uint32_t lastTime = 0;
 int16_t baseThrottle = 600;
 int16_t previousHeight = 0;
+int16_t previousClimRate = 0;
 
 int16_t e;
 int16_t e1;
@@ -115,18 +116,29 @@ static void follow_run()
         previousHeightError = height_error;
         */
 
-        /*follow_target_distance is in fact "settings". Set the bits according to this guide to set automatic control on required directions
+        /*follow_tracking_mode is a "settings" variable. Set the bits according to this guide to set automatic control on required directions
         [pitch w. US , Roll w. Oculus, Yaw w. Oculus, Yaw w. US, Height w. US]. Recommended setting for automatic flight is 27 */
-        if(follow_target_distance & 1){
+        if(follow_tracking_mode & 1){
 
-            #define maxDiff 20 
-            if(abs(follow_sonar_height - previousHeight) > maxDiff) {
-                follow_sonar_height = previousHeight + 2 * (((follow_sonar_height - previousHeight) > 0) - ((follow_sonar_height - previousHeight) < 0));
-                hal.console->printf("To fast %d\n",  follow_sonar_height);
+            y = follow_sonar_height;
+          //  #define maxDiff 20 
+//            if(abs(y - previousHeight) > maxDiff) {
+                //follow_sonar_height = previousHeight + 2 * (((follow_sonar_height - previousHeight) > 0) - ((follow_sonar_height - previousHeight) < 0));
+                //hal.console->printf("To fast %d\n",  follow_sonar_height);
+//            }
+            y = constrain_int16(y, previousHeight - maxDiff, previousHeight + maxDiff);
+            previousHeight = y;
+
+/*            y = follow_sonar_height;
+            //int16_t maxDiff = (climb_rate - previousClimRate) * dt / 2000;
+            int16_t maxDiff = ((climb_rate + previousClimRate)/2 * dt) / 1000;
+            if(abs(y - previousHeight) > (abs(maxDiff) + 4)){                
+                y = previousHeight;
             }
 
-            previousHeight = follow_sonar_height;
-
+            previousHeight = y;
+            previousClimRate = climb_rate;
+*/
             k1 = throttleP + throttleI + throttleD;
             k2 = -throttleP-2*throttleD;
             k3 = throttleD;
@@ -148,14 +160,12 @@ static void follow_run()
             // Send throttle with baseThrotthle value, i.e. basethrottle plus difference, 
             
             follow_throttle = (int16_t)constrain_float(u+baseThrottle, 0, 1000);
-            // 100 560
-            //146 513
         } else {
             follow_throttle = get_pilot_desired_throttle(g.rc_3.control_in);
         }
 
         
-        if(follow_target_distance & 4){
+        if(follow_tracking_mode & 4){
             //update yaw with oculus
             yaw_error = follow_oculus_yaw - wrap_180_cd(ahrs.yaw_sensor);
             yawIntegral += yaw_error * dt;
@@ -163,7 +173,7 @@ static void follow_run()
             follow_yaw = (int16_t)constrain_float(0 + yawP * yaw_error + yawI * yawIntegral + yawD * yawDerivative, -4500, 4500);
             previousYawError = yaw_error;
 
-        } else if(follow_target_distance & 2){
+        } else if(follow_tracking_mode & 2){
             //update yaw with ultrasonic tracking
             yaw_error = follow_centerline_error;
             yawIntegral += yaw_error * dt;
@@ -177,9 +187,8 @@ static void follow_run()
 
         
 
-        if(follow_target_distance & 8){
+        if(follow_tracking_mode & 8){
             //update roll with oculus yaw
-            
             roll_error = follow_oculus_yaw - wrap_180_cd(ahrs.yaw_sensor);
             if(roll_error > 18000){
                 roll_error = roll_error - 36000;
@@ -195,10 +204,9 @@ static void follow_run()
         }
         
 
-        if(follow_target_distance & 16){
+        if(follow_tracking_mode & 16){
             //update pitch with ultrasonic distance
-            
-            //pitch_error = follow_target_distance - follow_distance_to_user;
+            //pitch_error = follow_tracking_mode - follow_distance_to_user;
             pitch_error = follow_distance_to_user;
             pitchIntegral += pitch_error * dt;
             pitchDerivative = ((float)(pitch_error - previousPitchError)) / dt;
